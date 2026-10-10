@@ -1,0 +1,102 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Produto {
+  id                Int       @id @default(autoincrement())
+  ean               String    @unique @db.VarChar(50)
+  nome              String    @db.VarChar(255)
+  categoria         String?   @db.VarChar(100)
+  subcategoria      String?   @db.VarChar(100)
+  imagem_url        String?   @db.Text
+  descricao         String?   @db.Text
+  preco_custo       Decimal?  @default(0) @db.Decimal(10, 2)
+  preco_venda       Decimal   @db.Decimal(10, 2)
+  estoque_atual     Int?      @default(0)
+  ativo             Boolean?  @default(true)
+  wp_id             Int?
+  ncm               String?   @default("22030000") @db.VarChar(8)
+  cfop              String?   @default("5102") @db.VarChar(4)
+  icms_cst          String?   @default("102") @db.VarChar(3)
+  pis_cst           String?   @default("99") @db.VarChar(2)
+  cofins_cst        String?   @default("99") @db.VarChar(2)
+  origem_mercadoria String?   @default("0") @db.VarChar(1)
+  criado_em         DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([categoria], map: "idx_produtos_categoria")
+  @@index([wp_id], map: "idx_produtos_wp_id")
+  @@map("produtos")
+}
+
+model Funcionario {
+  id                   Int       @id @default(autoincrement())
+  matricula            String    @unique @db.VarChar(5)
+  senha                String    @db.VarChar(255)
+  cpf                  String    @unique @db.VarChar(14)
+  nome                 String    @db.VarChar(100)
+  endereco             String?   @db.Text
+  data_nascimento      DateTime? @db.Date
+  desconto_funcionario Decimal?  @default(0.00) @db.Decimal(5, 2)
+  loja_id              Int?      @default(1)
+  status               String?   @default("ATIVO") @db.VarChar(20)
+  nivel_acesso         String?   @default("CAIXA") @db.VarChar(20)
+  criado_em            DateTime? @default(now()) @db.Timestamp(6)
+
+  @@map("funcionarios")
+}
+
+model Venda {
+  id                  Int           @id @default(autoincrement())
+  total               Decimal       @db.Decimal(10, 2)
+  metodo_pagamento    String        @db.VarChar(20)
+  cpf_cnpj_cliente    String?       @db.VarChar(14)
+  status_nfe          String?       @default("NAO_EMITIDA") @db.VarChar(20)
+  chave_nfe           String?       @db.VarChar(44)
+  protocolo_nfe       String?       @db.VarChar(50)
+  xml_nfe             String?       @db.Text
+  status              String?       @default("CONCLUIDA") @db.VarChar(20)
+  motivo_cancelamento String?       @db.Text
+  estorno_info        Json?
+  num_nfe             Int?
+  serie_nfe           Int?          @default(1)
+  criado_em           DateTime?     @default(now()) @db.Timestamp(6)
+  itens               VendaItem[]
+  
+  @@map("vendas")
+}
+
+model VendaItem {
+  id             Int       @id @default(autoincrement())
+  venda_id       Int?
+  produto_ean    String    @db.VarChar(50)
+  quantidade     Int
+  preco_unitario Decimal   @db.Decimal(10, 2)
+  produto_nome   String?   @db.VarChar(255)
+  preco_custo    Decimal?  @db.Decimal(10, 2)
+  venda          Venda?    @relation(fields: [venda_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("vendas_itens")
+}
+
+model MovimentacaoEstoque {
+  id             Int       @id @default(autoincrement())
+  produto_id     Int?
+  produto_ean    String    @db.VarChar(50)
+  produto_nome   String?   @db.VarChar(255)
+  tipo           String    @db.VarChar(30)
+  quantidade     Int
+  custo_unitario Decimal?  @default(0) @db.Decimal(10, 2)
+  valor_total    Decimal?  @default(0) @db.Decimal(12, 2)
+  venda_id       Int?
+  usuario_id     Int?
+  criado_em      DateTime? @default(now()) @db.Timestamp(6)
+
+  @@map("movimentacoes_estoque")
+}
