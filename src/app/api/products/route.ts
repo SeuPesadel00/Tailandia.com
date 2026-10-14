@@ -22,10 +22,10 @@ export async function GET(request: Request) {
     if (supabaseKey && !supabaseKey.includes('...')) {
       const supabase = createClient(supabaseUrl, supabaseKey);
 
-      // Busca com range expandido para cobrir os 2.000+ produtos da distribuidora
+      // Busca com range expandido selecionando estritamente colunas públicas (protege margem e dados fiscais)
       let query = supabase
         .from('produtos')
-        .select('*')
+        .select('id, ean, sku, nome, categoria, subcategoria, preco_venda, preco_promocional, estoque_atual, unidade_medida, volume, imagem_url, descricao, descricao_completa, tags, destaque_home, delivery_online, selo_especial, ativo, wp_id')
         .eq('ativo', true)
         .order('id', { ascending: true })
         .range(0, 3000);
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     const fallbackMap = new Map<string, Product>();
     REAL_TAILANDIA_PRODUCTS.forEach(p => fallbackMap.set(String(p.ean), p));
 
-    // Mapeamento e normalização dos dados
+    // Mapeamento e normalização dos dados (sem expor preco_custo ou dados fiscais)
     const mappedProducts: Product[] = rawProducts.map((p: any) => {
       const eanStr = String(p.ean || '');
       const fallback = fallbackMap.get(eanStr);
@@ -60,7 +60,6 @@ export async function GET(request: Request) {
         subcategoria: p.subcategoria || fallback?.subcategoria,
         preco_venda: Number(p.preco_venda ?? fallback?.preco_venda ?? 0),
         preco_promocional: p.preco_promocional ? Number(p.preco_promocional) : fallback?.preco_promocional,
-        preco_custo: p.preco_custo ? Number(p.preco_custo) : fallback?.preco_custo,
         estoque_atual: Number(p.estoque_atual ?? 0),
         unidade_medida: p.unidade_medida || fallback?.unidade_medida || 'UN',
         volume: p.volume || fallback?.volume,

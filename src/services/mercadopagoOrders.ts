@@ -22,6 +22,7 @@ export interface CreateOrderParams {
   cardToken?: string;
   cardPaymentMethodId?: string;
   installments?: number;
+  idempotencyKey?: string;
 }
 
 export interface OrderResponse {
@@ -78,9 +79,8 @@ export function validarCPF(cpf: string): boolean {
  */
 export async function createMercadoPagoOrder(params: CreateOrderParams): Promise<OrderResponse> {
   const accessToken = getAccessToken();
-  const idempotencyKey = crypto.randomUUID();
-
   const formattedAmount = Number(params.total).toFixed(2);
+  const idempotencyKey = params.idempotencyKey || `mp-order-${params.vendaId}-${params.paymentMethod}-${formattedAmount}`;
   const cleanDoc = (params.docNumber || '').replace(/\D/g, '');
 
   // Validação de CPF para evitar rejection 402 processing_error
@@ -214,9 +214,16 @@ export function validateWebhookSignature(
   xSignature: string | null,
   xRequestId: string | null,
   dataId: string | null,
-  secret: string
+  secret?: string | null
 ): boolean {
-  if (!xSignature || !secret) return true; // Se não tiver secret configurado no .env, não bloqueia em dev
+  if (!secret) {
+    console.error('[Webhook Security] MP_WEBHOOK_SECRET não configurado. Rejeitando requisição por segurança.');
+    return false;
+  }
+  if (!xSignature) {
+    console.warn('[Webhook Security] Header x-signature ausente. Requisição rejeitada.');
+    return false;
+  }
 
   try {
     let ts: string | undefined;
