@@ -10,23 +10,44 @@ import { SlidersHorizontal, ArrowUpDown, Filter, Sparkles, X, PackageOpen } from
 export default function ProductGrid() {
   const { activeCategory, searchQuery, setSearchQuery } = useCart();
 
+  const [productsList, setProductsList] = useState<Product[]>(REAL_TAILANDIA_PRODUCTS);
   const [sortBy, setSortBy] = useState<'destaque' | 'menor-preco' | 'maior-preco' | 'alfabetica'>('destaque');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('TODAS');
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>('TODOS');
   const [visibleCount, setVisibleCount] = useState<number>(16);
 
+  // Busca produtos do Supabase (com fallback automático para a lista estática)
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDynamicProducts() {
+      try {
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && Array.isArray(data) && data.length > 0) {
+            setProductsList(data);
+          }
+        }
+      } catch {
+        // Mantém REAL_TAILANDIA_PRODUCTS em caso de falha de conexão
+      }
+    }
+    loadDynamicProducts();
+    return () => { isMounted = false; };
+  }, []);
+
   // Subcategorias disponíveis para a categoria atual
   const availableSubcategories = useMemo(() => {
     const productsInCat = activeCategory === 'TODAS'
-      ? REAL_TAILANDIA_PRODUCTS
-      : REAL_TAILANDIA_PRODUCTS.filter(p => p.categoria.toLowerCase() === activeCategory.toLowerCase());
+      ? productsList
+      : productsList.filter(p => p.categoria.toLowerCase() === activeCategory.toLowerCase());
     
     const subs = new Set<string>();
     productsInCat.forEach(p => {
       if (p.subcategoria) subs.add(p.subcategoria);
     });
     return Array.from(subs);
-  }, [activeCategory]);
+  }, [activeCategory, productsList]);
 
   // Reseta filtros secundários quando mudar de categoria principal
   useEffect(() => {
@@ -36,7 +57,7 @@ export default function ProductGrid() {
 
   // Filtragem e Ordenação
   const filteredProducts = useMemo(() => {
-    let result = [...REAL_TAILANDIA_PRODUCTS];
+    let result = [...productsList];
 
     // Categoria
     if (activeCategory !== 'TODAS') {

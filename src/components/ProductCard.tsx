@@ -64,10 +64,10 @@ export default function ProductCard({ product }: { product: Product }) {
             {getSeloBadge()}
           </div>
 
-          {/* Botão Quick View no Hover */}
+          {/* Botão Quick View acessível em Mobile e Desktop */}
           <button
             onClick={() => setQuickViewProduct(product)}
-            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900/80 text-slate-300 opacity-0 backdrop-blur-md transition-all group-hover:opacity-100 hover:bg-emerald-500 hover:text-slate-950"
+            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900/85 text-slate-300 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 backdrop-blur-md transition-all hover:bg-emerald-500 hover:text-slate-950 active:scale-95"
             title="Ver detalhes"
           >
             <Eye size={14} />
@@ -122,7 +122,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {isOutOfStock ? (
           <button
             disabled
-            className="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2 text-center text-xs font-semibold text-slate-500 cursor-not-allowed"
+            className="w-full rounded-xl border border-slate-800 bg-slate-950/60 py-2.5 text-center text-xs font-semibold text-slate-500 cursor-not-allowed"
           >
             Indisponível
           </button>
@@ -130,15 +130,15 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-2 py-1.5 text-xs text-emerald-400">
             <button
               onClick={() => updateQuantity(product.id, -1)}
-              className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-900 text-slate-200 transition-colors hover:bg-slate-800"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-slate-200 transition-colors hover:bg-slate-800 active:scale-90"
               aria-label="Diminuir"
             >
               <Minus size={13} />
             </button>
-            <span className="font-bold text-white">{inCartQty}</span>
+            <span className="font-bold text-white text-xs">{inCartQty}</span>
             <button
               onClick={() => updateQuantity(product.id, 1)}
-              className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 text-slate-950 transition-colors hover:bg-emerald-400"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500 text-slate-950 transition-colors hover:bg-emerald-400 active:scale-90"
               aria-label="Aumentar"
             >
               <Plus size={13} />
@@ -147,7 +147,7 @@ export default function ProductCard({ product }: { product: Product }) {
         ) : (
           <button
             onClick={() => addItem(product, 1)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/80 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:border-emerald-500 hover:bg-emerald-500 hover:text-slate-950 active:scale-95"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/80 py-2.5 px-3 text-xs font-bold text-white shadow-sm transition-all hover:border-emerald-500 hover:bg-emerald-500 hover:text-slate-950 active:scale-95"
           >
             <ShoppingBag size={14} />
             <span>Adicionar</span>
