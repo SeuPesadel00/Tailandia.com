@@ -106,9 +106,19 @@ async function processarPagamentoAprovado(vendaId: number, comprovanteRef: strin
       console.warn(`Aviso ao atualizar venda #${vendaId} no Prisma:`, e.message);
     }
 
-    // 2. Decrementa estoque se Supabase estiver configurado
-    if (supabaseUrl && supabaseServiceKey) {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // 2. Atualiza no Supabase REST e decrementa estoque
+    const sbKey = supabaseServiceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (supabaseUrl && sbKey) {
+      const supabase = createClient(supabaseUrl, sbKey);
+
+      try {
+        await supabase
+          .from('vendas')
+          .update({ status: 'CONCLUIDA' })
+          .eq('id', vendaId);
+      } catch (e: any) {
+        console.warn(`Aviso ao atualizar venda #${vendaId} no Supabase:`, e.message);
+      }
 
       try {
         const venda = await prisma.venda.findUnique({

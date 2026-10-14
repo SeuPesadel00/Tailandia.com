@@ -18,6 +18,20 @@ import {
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 
+interface OrderSummarySnapshot {
+  items: Array<{
+    id: number;
+    nome: string;
+    imagem_url: string;
+    preco: number;
+    quantity: number;
+  }>;
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  total: number;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, deliveryFee, subtotal, discount, clearCart } = useCart();
@@ -42,6 +56,7 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [orderSummary, setOrderSummary] = useState<OrderSummarySnapshot | null>(null);
   const [pixData, setPixData] = useState<{
     qrCodeBase64: string;
     qrCodeCopiaECola: string;
@@ -212,6 +227,21 @@ export default function CheckoutPage() {
 
       // Sucesso PIX
       if (paymentMethod === 'pix' && data.qrCodeBase64) {
+        const summarySnapshot: OrderSummarySnapshot = {
+          items: items.map((i) => ({
+            id: i.product.id,
+            nome: i.product.nome,
+            imagem_url: i.product.imagem_url,
+            preco: i.product.preco_promocional || i.product.preco_venda,
+            quantity: i.quantity,
+          })),
+          subtotal,
+          deliveryFee,
+          discount,
+          total,
+        };
+        setOrderSummary(summarySnapshot);
+
         setPixData({
           qrCodeBase64: data.qrCodeBase64,
           qrCodeCopiaECola: data.qrCodeCopiaECola,
@@ -222,6 +252,21 @@ export default function CheckoutPage() {
         clearCart();
       } else if (paymentMethod === 'credit_card') {
         // Sucesso Cartão
+        const summarySnapshot: OrderSummarySnapshot = {
+          items: items.map((i) => ({
+            id: i.product.id,
+            nome: i.product.nome,
+            imagem_url: i.product.imagem_url,
+            preco: i.product.preco_promocional || i.product.preco_venda,
+            quantity: i.quantity,
+          })),
+          subtotal,
+          deliveryFee,
+          discount,
+          total,
+        };
+        setOrderSummary(summarySnapshot);
+
         setCardSuccess({
           vendaId: data.vendaId,
           orderId: data.orderId,
@@ -280,7 +325,10 @@ export default function CheckoutPage() {
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 mb-2">
                     Pedido #{pixData.vendaId} Criado com Sucesso
                   </span>
-                  <h2 className="text-xl sm:text-2xl font-black text-white mb-2">Pague com PIX Instantâneo</h2>
+                  <h2 className="text-xl sm:text-2xl font-black text-white mb-1">Pague com PIX Instantâneo</h2>
+                  <div className="text-2xl sm:text-3xl font-black text-amber-400 mb-2">
+                    {formatBRL(orderSummary ? orderSummary.total : total)}
+                  </div>
                   <p className="text-xs sm:text-sm text-slate-400 mb-6 max-w-md">
                     Abra o app do seu banco e escaneie o QR Code abaixo ou utilize o código Copia e Cola.
                   </p>
@@ -628,13 +676,22 @@ export default function CheckoutPage() {
                 <h3 className="text-base font-bold text-white mb-4">Resumo do Pedido</h3>
 
                 <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
-                  {items.length > 0 ? (
-                    items.map((item) => (
-                      <div key={item.product.id} className="flex gap-2.5 items-center">
+                  {(orderSummary ? orderSummary.items : items).length > 0 ? (
+                    (orderSummary
+                      ? orderSummary.items
+                      : items.map((i) => ({
+                          id: i.product.id,
+                          nome: i.product.nome,
+                          imagem_url: i.product.imagem_url,
+                          preco: i.product.preco_promocional || i.product.preco_venda,
+                          quantity: i.quantity,
+                        }))
+                    ).map((item) => (
+                      <div key={item.id} className="flex gap-2.5 items-center">
                         <div className="relative h-11 w-11 shrink-0 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden">
                           <img
-                            src={item.product.imagem_url}
-                            alt={item.product.nome}
+                            src={item.imagem_url}
+                            alt={item.nome}
                             className="object-cover h-full w-full"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
@@ -646,9 +703,9 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <div className="flex-1 text-xs min-w-0">
-                          <p className="font-semibold text-white truncate">{item.product.nome}</p>
+                          <p className="font-semibold text-white truncate">{item.nome}</p>
                           <p className="text-slate-400">
-                            {formatBRL((item.product.preco_promocional || item.product.preco_venda) * item.quantity)}
+                            {formatBRL(item.preco * item.quantity)}
                           </p>
                         </div>
                       </div>
@@ -661,21 +718,21 @@ export default function CheckoutPage() {
                 <div className="border-t border-slate-800 pt-4 space-y-2 text-xs">
                   <div className="flex justify-between text-slate-400">
                     <span>Subtotal</span>
-                    <span>{formatBRL(subtotal)}</span>
+                    <span>{formatBRL(orderSummary ? orderSummary.subtotal : subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Taxa de Entrega</span>
-                    <span>{deliveryFee === 0 ? 'Grátis' : formatBRL(deliveryFee)}</span>
+                    <span>{(orderSummary ? orderSummary.deliveryFee : deliveryFee) === 0 ? 'Grátis' : formatBRL(orderSummary ? orderSummary.deliveryFee : deliveryFee)}</span>
                   </div>
-                  {discount > 0 && (
+                  {(orderSummary ? orderSummary.discount : discount) > 0 && (
                     <div className="flex justify-between text-emerald-400">
                       <span>Desconto</span>
-                      <span>-{formatBRL(discount)}</span>
+                      <span>-{formatBRL(orderSummary ? orderSummary.discount : discount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-base font-black text-amber-400 pt-2 border-t border-slate-800">
                     <span>Total a Pagar</span>
-                    <span>{formatBRL(total)}</span>
+                    <span>{formatBRL(orderSummary ? orderSummary.total : total)}</span>
                   </div>
                 </div>
               </div>

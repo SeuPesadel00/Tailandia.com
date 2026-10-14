@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Registra a venda como PENDENTE no banco de dados local/Supabase
-    let vendaId: number;
+    let vendaId: number | null = null;
     try {
       const venda = await prisma.venda.create({
         data: {
@@ -77,10 +77,58 @@ export async function POST(request: Request) {
         },
       });
       vendaId = venda.id;
+      console.log(`[Checkout] Venda #${vendaId} registrada com sucesso via Prisma.`);
     } catch (dbErr: any) {
-      console.warn('Aviso: Falha ao persistir venda no Prisma/Postgres, gerando ID temporário:', dbErr.message);
-      // Se o banco ainda não estiver acessível, usamos timestamp para não interromper os testes
+      console.warn('[Checkout] Prisma indisponível, tentando persistência via Supabase REST API:', dbErr.message);
+    }
+
+    // Fallback: Se o Prisma falhou no Serverless, insere diretamente via Supabase REST API (HTTPS)
+    if (!vendaId) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmcnpfetuhij.supabase.co';
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const sbClient = createClient(supabaseUrl, supabaseKey);
+          const { data: vData, error: vErr } = await sbClient
+            .from('vendas')
+            .insert({
+              total: cleanTotal,
+              metodo_pagamento: paymentMethod === 'credit_card' ? 'CARTAO_CREDITO' : 'PIX',
+              status: 'PENDENTE',
+              cpf_cnpj_cliente: cleanDoc,
+            })
+            .select('id')
+            .single();
+
+          if (vErr) {
+            console.error('[Checkout] Erro ao persistir venda no Supabase REST:', vErr);
+          } else if (vData) {
+            vendaId = vData.id;
+            console.log(`[Checkout] Venda #${vendaId} registrada com sucesso via Supabase REST.`);
+
+            const itensPayload = items.map((item: any) => ({
+              venda_id: vendaId,
+              produto_ean: String(item.ean || 'EAN-GERAL'),
+              quantidade: Math.max(1, parseInt(item.quantity, 10) || 1),
+              preco_unitario: Number(item.unit_price) || 0,
+              produto_nome: String(item.title || 'Produto').slice(0, 255),
+            }));
+
+            const { error: itemsErr } = await sbClient.from('vendas_itens').insert(itensPayload);
+            if (itemsErr) {
+              console.warn('[Checkout] Aviso ao salvar itens no Supabase REST:', itemsErr);
+            }
+          }
+        } catch (sbEx: any) {
+          console.error('[Checkout] Exceção ao persistir no Supabase REST:', sbEx.message);
+        }
+      }
+    }
+
+    if (!vendaId) {
       vendaId = Math.floor(Date.now() / 1000);
+      console.warn('[Checkout] Banco de dados temporariamente inacessível, gerando ID temporário:', vendaId);
     }
 
     // 3. Chamada à API oficial de Orders do Mercado Pago (/v1/orders)
