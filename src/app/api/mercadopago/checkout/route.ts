@@ -33,7 +33,31 @@ export async function POST(request: Request) {
     const cleanDoc = String(docNumber).replace(/\D/g, '');
     const cleanTotal = Number(total);
 
-    // 2. Registra a venda como PENDENTE no banco de dados local/Supabase
+    // 2. Validação atômica de estoque contra o banco de dados (Prevenção de Overselling PDV vs Web)
+    try {
+      for (const item of items) {
+        if (item.ean && item.ean !== 'EAN-GERAL') {
+          const dbProd = await prisma.produto.findUnique({
+            where: { ean: String(item.ean) },
+            select: { nome: true, estoque_atual: true }
+          });
+          if (dbProd) {
+            const requestedQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+            if ((dbProd.estoque_atual ?? 0) < requestedQty) {
+              return NextResponse.json({
+                success: false,
+                code: 'OUT_OF_STOCK',
+                message: `O produto "${dbProd.nome}" acabou de esgotar no balcão físico do PDV (restam apenas ${dbProd.estoque_atual ?? 0} un.). Por favor, atualize seu carrinho.`
+              }, { status: 409 });
+            }
+          }
+        }
+      }
+    } catch (stockCheckErr: any) {
+      console.warn('Aviso: Verificação de estoque pré-checkout falhou ou Prisma offline:', stockCheckErr.message);
+    }
+
+    // 3. Registra a venda como PENDENTE no banco de dados local/Supabase
     let vendaId: number;
     try {
       const venda = await prisma.venda.create({

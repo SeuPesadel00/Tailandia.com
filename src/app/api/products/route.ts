@@ -1,38 +1,53 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { REAL_TAILANDIA_PRODUCTS } from '@/services/products';
+import { REAL_TAILANDIA_PRODUCTS, filterVendaveis, isVendavel, getCategoryBySlug } from '@/services/products';
 import { Product } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const categoryParam = searchParams.get('categoria') || '';
+    const slugParam = searchParams.get('slug') || '';
+    const subParam = searchParams.get('sub') || '';
+    const searchParam = (searchParams.get('busca') || searchParams.get('q') || '').trim().toLowerCase();
+    const isFeaturedOnly = searchParams.get('destaque') === 'true';
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmcnpfetuhij.supabase.co';
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseKey || supabaseKey.includes('...')) {
-      // Chaves ainda não totalmente preenchidas no .env: retorna catálogo demonstrativo completo
-      return NextResponse.json(REAL_TAILANDIA_PRODUCTS);
+    let rawProducts: any[] = [];
+
+    if (supabaseKey && !supabaseKey.includes('...')) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      // Busca com range expandido para cobrir os 2.000+ produtos da distribuidora
+      let query = supabase
+        .from('produtos')
+        .select('*')
+        .eq('ativo', true)
+        .order('id', { ascending: true })
+        .range(0, 3000);
+
+      const { data: dbProducts, error } = await query;
+
+      if (!error && dbProducts && dbProducts.length > 0) {
+        rawProducts = dbProducts;
+      } else {
+        console.warn('Fallback: Supabase vazio ou indisponível, usando catálogo base');
+        rawProducts = REAL_TAILANDIA_PRODUCTS;
+      }
+    } else {
+      rawProducts = REAL_TAILANDIA_PRODUCTS;
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { data: dbProducts, error } = await supabase
-      .from('produtos')
-      .select('*')
-      .eq('ativo', true)
-      .order('id', { ascending: true });
-
-    if (error || !dbProducts || dbProducts.length === 0) {
-      // Fallback seguro caso o banco ainda esteja vazio ou ocorra erro de conexão
-      return NextResponse.json(REAL_TAILANDIA_PRODUCTS);
-    }
-
-    // Mapa de produtos padrão para enriquecimento visual (imagens em alta, selos e tags)
+    // Mapa de enriquecimento visual (imagens de alta definição e selos da Tailândia)
     const fallbackMap = new Map<string, Product>();
     REAL_TAILANDIA_PRODUCTS.forEach(p => fallbackMap.set(String(p.ean), p));
 
-    const mergedProducts: Product[] = dbProducts.map((p: any) => {
+    // Mapeamento e normalização dos dados
+    const mappedProducts: Product[] = rawProducts.map((p: any) => {
       const eanStr = String(p.ean || '');
       const fallback = fallbackMap.get(eanStr);
 
@@ -59,13 +74,50 @@ export async function GET(request: Request) {
         ativo: p.ativo !== false,
         wp_id: p.wp_id || fallback?.wp_id,
         rating: fallback?.rating || 4.8,
-        reviewsCount: fallback?.reviewsCount || 12,
+        reviewsCount: fallback?.reviewsCount || 15,
       };
     });
 
-    return NextResponse.json(mergedProducts);
+    // 1. SANITIZAÇÃO: Remove subprodutos de PDV, insumos internos e itens sem preço
+    let filtered = filterVendaveis(mappedProducts);
+
+    // 2. Filtro por Categoria / Slug
+    if (slugParam && slugParam !== 'todas') {
+      const catMeta = getCategoryBySlug(slugParam);
+      const targetDbCategories = (catMeta.dbCategories || [catMeta.id]).map(c => c.toLowerCase());
+      filtered = filtered.filter(p => targetDbCategories.includes((p.categoria || '').toLowerCase()));
+    } else if (categoryParam && categoryParam !== 'TODAS') {
+      filtered = filtered.filter(p => (p.categoria || '').toLowerCase() === categoryParam.toLowerCase());
+    }
+
+    // 3. Filtro por Subcategoria
+    if (subParam && subParam !== 'TODAS') {
+      filtered = filtered.filter(p => (p.subcategoria || '').toLowerCase() === subParam.toLowerCase());
+    }
+
+    // 4. Filtro por Busca Textual
+    if (searchParam) {
+      filtered = filtered.filter(p =>
+        p.nome.toLowerCase().includes(searchParam) ||
+        p.descricao?.toLowerCase().includes(searchParam) ||
+        p.ean?.toLowerCase().includes(searchParam) ||
+        p.subcategoria?.toLowerCase().includes(searchParam) ||
+        (p.tags && p.tags.some(t => t.toLowerCase().includes(searchParam)))
+      );
+    }
+
+    // 5. Filtro de Destaques / Mais Vendidos
+    if (isFeaturedOnly) {
+      filtered = filtered.filter(p => p.destaque_home || p.selo_especial || p.categoria === 'Combos');
+    }
+
+    return NextResponse.json(filtered, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120'
+      }
+    });
   } catch (err: any) {
-    console.error('Erro ao buscar produtos do Supabase:', err);
-    return NextResponse.json(REAL_TAILANDIA_PRODUCTS);
+    console.error('Erro na API de produtos:', err);
+    return NextResponse.json(filterVendaveis(REAL_TAILANDIA_PRODUCTS));
   }
 }

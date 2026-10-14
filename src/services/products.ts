@@ -440,22 +440,288 @@ export const REAL_TAILANDIA_PRODUCTS: Product[] = [
   }
 ];
 
+export interface CategoryMeta {
+  id: string;
+  slug: string;
+  label: string;
+  icon: string;
+  color: string;
+  descricao: string;
+  bannerGradient: string;
+  dbCategories: string[];
+  subcategoriasSugeridas: string[];
+}
+
+export const CATEGORIES_CONFIG: Record<string, CategoryMeta> = {
+  'tabacaria': {
+    id: 'Tabacaria',
+    slug: 'tabacaria',
+    label: 'Tabacaria & Headshop',
+    icon: 'Cigarette',
+    color: '#ec4899',
+    descricao: 'Narguiles completos, essências premium, carvão de coco, sedas, pods e acessórios com entrega 24h.',
+    bannerGradient: 'from-pink-950 via-rose-950 to-slate-950',
+    dbCategories: ['Tabacaria', 'Tabacaria & Headshop', 'Headshop'],
+    subcategoriasSugeridas: ['Essências', 'Carvão de Coco', 'Sedas & Filtros', 'Isqueiros & Maçaricos', 'Narguiles & Peças', 'Pods & Vapes', 'Palheiros']
+  },
+  'bebidas': {
+    id: 'Bebidas',
+    slug: 'bebidas',
+    label: 'Bebidas em Geral',
+    icon: 'Wine',
+    color: '#38bdf8',
+    descricao: 'Cervejas trincando de geladas, destilados nacionais e importados, refrigerantes e energéticos.',
+    bannerGradient: 'from-sky-950 via-blue-950 to-slate-950',
+    dbCategories: ['Bebidas', 'Cervejas', 'Destilados', 'Vinhos', 'Refrigerantes', 'Sucos', 'Energéticos'],
+    subcategoriasSugeridas: ['Cervejas', 'Whiskies', 'Gins', 'Vodkas', 'Energéticos', 'Refrigerantes', 'Vinhos']
+  },
+  'cervejas': {
+    id: 'Cervejas',
+    slug: 'cervejas',
+    label: 'Cervejas Geladas',
+    icon: 'Beer',
+    color: '#06b6d4',
+    descricao: 'Heineken, Corona, Stella, Amstel, Budweiser, Spaten e artesanais em temperatura trincando.',
+    bannerGradient: 'from-cyan-950 via-teal-950 to-slate-950',
+    dbCategories: ['Cervejas'],
+    subcategoriasSugeridas: ['Long Neck', 'Lata 350ml', 'Latão 473ml', 'Garrafa 600ml', 'Zero Álcool', 'Puro Malte']
+  },
+  'destilados': {
+    id: 'Destilados',
+    slug: 'destilados',
+    label: 'Whiskies & Destilados',
+    icon: 'Wine',
+    color: '#8b5cf6',
+    descricao: 'Os melhores whiskies 12 anos, gins importados, vodkas premium, cachaças artesanais e licores.',
+    bannerGradient: 'from-purple-950 via-indigo-950 to-slate-950',
+    dbCategories: ['Destilados', 'Whisky', 'Gin', 'Vodka', 'Cachaça', 'Licores'],
+    subcategoriasSugeridas: ['Whisky 12 Anos', 'Whisky 8 Anos', 'Gin Importado', 'Vodka Premium', 'Cachaças', 'Licores']
+  },
+  'combos': {
+    id: 'Combos',
+    slug: 'combos',
+    label: 'Combos & Kits da Resenha',
+    icon: 'Flame',
+    color: '#f59e0b',
+    descricao: 'Kits completos prontos para a festa: garrafa + energéticos Red Bull + gelos saborizados com preço especial.',
+    bannerGradient: 'from-amber-950 via-orange-950 to-slate-950',
+    dbCategories: ['Combos', 'Kits'],
+    subcategoriasSugeridas: ['Combo de Whisky', 'Combo de Gin', 'Combo de Vodka', 'Kits Promocionais']
+  },
+  'bomboniere': {
+    id: 'Petiscos & Doces',
+    slug: 'bomboniere',
+    label: 'Petiscos & Bomboniere',
+    icon: 'Cookie',
+    color: '#eab308',
+    descricao: 'Doritos, amendoins selecionados, chocolates, chicletes, balas e snacks para acompanhar suas bebidas.',
+    bannerGradient: 'from-yellow-950 via-amber-950 to-slate-950',
+    dbCategories: ['Petiscos & Doces', 'Bomboniere', 'Snacks', 'Doces'],
+    subcategoriasSugeridas: ['Salgadinhos & Batatas', 'Amendoins & Castanhas', 'Chocolates & Balas', 'Snacks']
+  },
+  'petiscos-doces': {
+    id: 'Petiscos & Doces',
+    slug: 'petiscos-doces',
+    label: 'Petiscos & Bomboniere',
+    icon: 'Cookie',
+    color: '#eab308',
+    descricao: 'Doritos, amendoins selecionados, chocolates, chicletes, balas e snacks para acompanhar suas bebidas.',
+    bannerGradient: 'from-yellow-950 via-amber-950 to-slate-950',
+    dbCategories: ['Petiscos & Doces', 'Bomboniere', 'Snacks', 'Doces'],
+    subcategoriasSugeridas: ['Salgadinhos & Batatas', 'Amendoins & Castanhas', 'Chocolates & Balas', 'Snacks']
+  },
+  'gelo-carvao': {
+    id: 'Gelo & Carvão',
+    slug: 'gelo-carvao',
+    label: 'Gelo & Carvão',
+    icon: 'Snowflake',
+    color: '#38bdf8',
+    descricao: 'Gelo filtrado em cubos 5kg, gelos saborizados de coco/maracujá e carvão vegetal de primeira para churrasco.',
+    bannerGradient: 'from-sky-950 via-cyan-950 to-slate-950',
+    dbCategories: ['Gelo & Carvão', 'Gelo', 'Carvão'],
+    subcategoriasSugeridas: ['Gelo em Cubo', 'Gelo Saborizado', 'Carvão Vegetal', 'Acendedores']
+  },
+  'tailandia-grill': {
+    id: 'Tailandia Grill',
+    slug: 'tailandia-grill',
+    label: 'Tailândia Grill & Espetos',
+    icon: 'Utensils',
+    color: '#f97316',
+    descricao: 'Jantinhas completas com tropeiro, arroz, mandioca e vinagrete, além de espetinhos assados na brasa na hora.',
+    bannerGradient: 'from-orange-950 via-red-950 to-slate-950',
+    dbCategories: ['Tailandia Grill', 'Grill', 'Espetos', 'Churrasco'],
+    subcategoriasSugeridas: ['Jantinhas Completas', 'Espetos Tradicionais', 'Queijo Coalho', 'Pão de Alho']
+  }
+};
+
 export const CATEGORIES_LIST = [
-  { id: 'TODAS', label: 'Todos os Produtos', icon: 'Sparkles', color: '#10b981' },
-  { id: 'Combos', label: 'Combos & Kits', icon: 'Flame', color: '#f59e0b' },
-  { id: 'Cervejas', label: 'Cervejas Geladas', icon: 'Beer', color: '#06b6d4' },
-  { id: 'Destilados', label: 'Whiskies & Destilados', icon: 'Wine', color: '#8b5cf6' },
-  { id: 'Tabacaria', label: 'Tabacaria & Headshop', icon: 'Cigarette', color: '#ec4899' },
-  { id: 'Gelo & Carvão', label: 'Gelo & Carvão', icon: 'Snowflake', color: '#38bdf8' },
-  { id: 'Tailandia Grill', label: 'Tailândia Grill', icon: 'Utensils', color: '#f97316' },
-  { id: 'Petiscos & Doces', label: 'Petiscos & Doces', icon: 'Cookie', color: '#eab308' },
+  { id: 'TODAS', slug: '', label: 'Todos os Produtos', icon: 'Sparkles', color: '#10b981' },
+  { id: 'Combos', slug: 'combos', label: 'Combos & Kits', icon: 'Flame', color: '#f59e0b' },
+  { id: 'Cervejas', slug: 'cervejas', label: 'Cervejas Geladas', icon: 'Beer', color: '#06b6d4' },
+  { id: 'Destilados', slug: 'destilados', label: 'Whiskies & Destilados', icon: 'Wine', color: '#8b5cf6' },
+  { id: 'Tabacaria', slug: 'tabacaria', label: 'Tabacaria & Headshop', icon: 'Cigarette', color: '#ec4899' },
+  { id: 'Gelo & Carvão', slug: 'gelo-carvao', label: 'Gelo & Carvão', icon: 'Snowflake', color: '#38bdf8' },
+  { id: 'Tailandia Grill', slug: 'tailandia-grill', label: 'Tailândia Grill', icon: 'Utensils', color: '#f97316' },
+  { id: 'Petiscos & Doces', slug: 'bomboniere', label: 'Petiscos & Bomboniere', icon: 'Cookie', color: '#eab308' },
 ];
 
-export async function fetchProducts(category?: string, query?: string): Promise<Product[]> {
-  // Simula latência de rede realista para testar estados de carregamento
-  await new Promise(r => setTimeout(r, 120));
+export function slugify(text: string): string {
+  return String(text || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
-  let items = [...REAL_TAILANDIA_PRODUCTS];
+export function getCategoryBySlug(slug: string): CategoryMeta {
+  const cleanSlug = slugify(slug);
+  if (CATEGORIES_CONFIG[cleanSlug]) {
+    return CATEGORIES_CONFIG[cleanSlug];
+  }
+
+  // Tenta encontrar por matching parcial
+  for (const key of Object.keys(CATEGORIES_CONFIG)) {
+    if (cleanSlug.includes(key) || key.includes(cleanSlug)) {
+      return CATEGORIES_CONFIG[key];
+    }
+  }
+
+  // Fallback dinâmico para categorias criadas no banco de dados
+  const labelNormalizado = cleanSlug
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+  return {
+    id: labelNormalizado,
+    slug: cleanSlug,
+    label: labelNormalizado,
+    icon: 'Sparkles',
+    color: '#10b981',
+    descricao: `Confira todos os itens disponíveis na categoria ${labelNormalizado}.`,
+    bannerGradient: 'from-slate-900 via-slate-950 to-slate-900',
+    dbCategories: [labelNormalizado],
+    subcategoriasSugeridas: []
+  };
+}
+
+// =========================================================================
+// 1. SANITIZAÇÃO DE DADOS: SEPARAÇÃO DE PRODUTOS WEB vs SUBPRODUTOS DE PDV
+// =========================================================================
+
+// Termos que identificam itens internos de PDV, composições de combos ou insumos
+const SUBPRODUCT_PREFIXES = [
+  '[SUB]', '[COMPOSIÇÃO]', '[COMPOSICAO]', '[INSUMO]', '[MODIFICADOR]',
+  '[USO INTERNO]', '[INTERNO]', '[AVARIA]', '[PERDA]', '[TESTE]',
+  '[DOACAO]', '[DOAÇÃO]', '[PRODUCAO]', '[PRODUÇÃO]', '(SUB)', '(COMPOSICAO)'
+];
+
+const INTERNAL_SUPPLIES_KEYWORDS = [
+  'BOBINA FISCAL', 'BOBINA TERMICA', 'BOBINA TÉRMICA',
+  'CANUDO DESCARTAVEL', 'CANUDO BIODEGRADAVEL', 'CANUDO PLASTICO',
+  'COPO DESCARTAVEL', 'COPO PLASTICO USO',
+  'SACOLA PLASTICA MILHEIRO', 'SACOLA DE ENTREGA', 'EMBALAGEM PARA VIAGEM FARDO',
+  'FITA ADESIVA EMBALAGEM', 'FITA GOMADA',
+  'GAS CO2 CHOPEIRA', 'CILINDRO CO2',
+  'PA DE GELO', 'PÁ DE GELO',
+  'ETIQUETA BALANCA', 'ETIQUETA TÉRMICA',
+  'PAPEL ACOPLADO'
+];
+
+const INTERNAL_CATEGORIES = [
+  'insumos', 'uso e consumo', 'embalagens', 'embalagens internas',
+  'patrimonio', 'patrimônio', 'ativo imobilizado', 'descarte',
+  'materia-prima', 'matéria-prima', 'materiais de limpeza'
+];
+
+/**
+ * Retorna true apenas se o produto for vendável para o cliente final na vitrine web.
+ * Filtra itens de composição interna do PDV, insumos e produtos com preço zerado.
+ */
+export function isVendavel(p: any): boolean {
+  if (!p) return false;
+  if (p.ativo === false) return false;
+
+  // 1. Preço de venda deve ser válido e positivo
+  const preco = Number(p.preco_venda ?? p.preco ?? 0);
+  if (!Number.isFinite(preco) || preco <= 0) {
+    return false;
+  }
+
+  // 2. Se possuir a flag explícita de delivery web desativada
+  if (p.delivery_online === false) {
+    return false;
+  }
+
+  const nomeUpper = String(p.nome || '').toUpperCase().trim();
+  const catLower = String(p.categoria || '').toLowerCase().trim();
+
+  // 3. Exclui se o nome começar com prefixos de composição de PDV
+  for (const prefix of SUBPRODUCT_PREFIXES) {
+    if (nomeUpper.startsWith(prefix) || nomeUpper.includes(` ${prefix} `)) {
+      return false;
+    }
+  }
+
+  // 4. Exclui insumos de uso interno e embalagens de balcão
+  for (const supply of INTERNAL_SUPPLIES_KEYWORDS) {
+    if (nomeUpper.includes(supply)) {
+      return false;
+    }
+  }
+
+  // 5. Exclui categorias estritamente internas da distribuidora
+  for (const internalCat of INTERNAL_CATEGORIES) {
+    if (catLower.includes(internalCat)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Filtra uma lista completa de produtos retornando apenas os itens vendáveis na vitrine web
+ */
+export function filterVendaveis(products: Product[]): Product[] {
+  if (!Array.isArray(products)) return [];
+  return products.filter(isVendavel);
+}
+
+/**
+ * Retorna a lista de produtos com maior apelo comercial para a seção de Destaques / Mais Vendidos da Home
+ */
+export function getFeaturedProducts(products: Product[]): Product[] {
+  const vendaveis = filterVendaveis(products);
+
+  // Ordena por prioridade comercial:
+  // 1º: Combos e Mais Vendidos (selo_especial === 'Mais Vendido' | 'Combo')
+  // 2º: Destaque Home marcado explicitamente
+  // 3º: Promoções ativas (preco_promocional menor que preco_venda)
+  // 4º: Estoque positivo disponível
+  return vendaveis
+    .filter(p => p.destaque_home || p.selo_especial || p.categoria === 'Combos' || p.preco_promocional)
+    .sort((a, b) => {
+      const getScore = (item: Product) => {
+        let score = 0;
+        if (item.estoque_atual <= 0) score -= 100;
+        if (item.selo_especial === 'Mais Vendido') score += 50;
+        if (item.categoria === 'Combos') score += 40;
+        if (item.destaque_home) score += 30;
+        if (item.preco_promocional && item.preco_promocional < item.preco_venda) score += 20;
+        if (item.selo_especial === 'Gelada') score += 10;
+        return score;
+      };
+      return getScore(b) - getScore(a);
+    })
+    .slice(0, 12);
+}
+
+export async function fetchProducts(category?: string, query?: string): Promise<Product[]> {
+  await new Promise(r => setTimeout(r, 60));
+
+  let items = filterVendaveis(REAL_TAILANDIA_PRODUCTS);
 
   if (category && category !== 'TODAS') {
     items = items.filter(p => p.categoria.toLowerCase() === category.toLowerCase());
@@ -473,3 +739,4 @@ export async function fetchProducts(category?: string, query?: string): Promise<
 
   return items;
 }
+

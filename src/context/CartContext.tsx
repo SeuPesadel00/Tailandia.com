@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Product, CartItem, DeliveryAddress } from '../types';
+import { useRealtimeStock, StockUpdateEvent } from '../hooks/useRealtimeStock';
 
 interface CartContextType {
   items: CartItem[];
@@ -75,15 +76,73 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, 3000);
   };
 
+  // Conecta ao listener global em tempo real do Supabase
+  useRealtimeStock();
+
+  // Escuta alterações de estoque disparadas pelo PDV físico
+  useEffect(() => {
+    const handleStockUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<StockUpdateEvent>;
+      const update = customEvent.detail;
+      if (!update) return;
+
+      setItems((prev) => {
+        let changed = false;
+        const nextItems = prev.map((item) => {
+          if (item.product.id === update.id || (update.ean && item.product.ean === update.ean)) {
+            changed = true;
+            const updatedProduct: Product = {
+              ...item.product,
+              estoque_atual: update.estoque_atual,
+              preco_venda: update.preco_venda !== undefined ? update.preco_venda : item.product.preco_venda,
+            };
+
+            if (update.estoque_atual <= 0) {
+              showToast(`⚠️ Atenção: "${item.product.nome}" acabou de esgotar no balcão da distribuidora!`);
+              return { ...item, product: updatedProduct };
+            } else if (item.quantity > update.estoque_atual) {
+              showToast(`⚠️ Estoque de "${item.product.nome}" reduzido para ${update.estoque_atual} no PDV. Carrinho atualizado.`);
+              return { ...item, quantity: update.estoque_atual, product: updatedProduct };
+            }
+            return { ...item, product: updatedProduct };
+          }
+          return item;
+        });
+
+        return changed ? nextItems : prev;
+      });
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('tailandia:stock_updated', handleStockUpdate);
+      return () => {
+        window.removeEventListener('tailandia:stock_updated', handleStockUpdate);
+      };
+    }
+  }, []);
+
   const addItem = (product: Product, quantity: number = 1) => {
+    if (product.estoque_atual <= 0) {
+      showToast(`⚠️ Ops! "${product.nome}" está esgotado no balcão.`);
+      return;
+    }
+
     setItems((prev) => {
       const idx = prev.findIndex((i) => i.product.id === product.id);
       if (idx >= 0) {
+        const currentQty = prev[idx].quantity;
+        const requestedQty = currentQty + quantity;
+        if (requestedQty > product.estoque_atual) {
+          showToast(`⚠️ Limite atingido: restam apenas ${product.estoque_atual} un. em estoque.`);
+          const updated = [...prev];
+          updated[idx].quantity = product.estoque_atual;
+          return updated;
+        }
         const updated = [...prev];
-        updated[idx].quantity += quantity;
+        updated[idx].quantity = requestedQty;
         return updated;
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity: Math.min(quantity, Math.max(1, product.estoque_atual)) }];
     });
     showToast(`Adicionado: ${quantity}x ${product.nome}`);
   };

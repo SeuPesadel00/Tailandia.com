@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Sparkles,
   Flame,
@@ -15,7 +17,8 @@ import { useCart } from '../context/CartContext';
 import { CATEGORIES_LIST } from '../services/products';
 
 export default function CategoryPills() {
-  const { activeCategory, setActiveCategory } = useCart();
+  const pathname = usePathname();
+  const { setActiveCategory } = useCart();
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
@@ -36,10 +39,15 @@ export default function CategoryPills() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
           {CATEGORIES_LIST.map((cat) => {
-            const isActive = activeCategory === cat.id;
+            const href = cat.slug ? `/categoria/${cat.slug}` : '/';
+            const isActive = cat.slug
+              ? pathname.startsWith(`/categoria/${cat.slug}`)
+              : pathname === '/';
+
             return (
-              <button
+              <Link
                 key={cat.id}
+                href={href}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
                   isActive
@@ -51,7 +59,7 @@ export default function CategoryPills() {
                   {getIcon(cat.icon)}
                 </span>
                 <span>{cat.label}</span>
-              </button>
+              </Link>
             );
           })}
         </div>

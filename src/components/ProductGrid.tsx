@@ -6,6 +6,7 @@ import { REAL_TAILANDIA_PRODUCTS } from '../services/products';
 import { Product } from '../types';
 import ProductCard from './ProductCard';
 import { SlidersHorizontal, ArrowUpDown, Filter, Sparkles, X, PackageOpen } from 'lucide-react';
+import { applyStockUpdateToProducts, StockUpdateEvent } from '../hooks/useRealtimeStock';
 
 export default function ProductGrid() {
   const { activeCategory, searchQuery, setSearchQuery } = useCart();
@@ -34,6 +35,20 @@ export default function ProductGrid() {
     }
     loadDynamicProducts();
     return () => { isMounted = false; };
+  }, []);
+
+  // Reage imediatamente a mudanças de estoque do PDV via WebSocket
+  useEffect(() => {
+    const handleStockUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<StockUpdateEvent>;
+      if (customEvent.detail) {
+        setProductsList((prev) => applyStockUpdateToProducts(prev, customEvent.detail));
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('tailandia:stock_updated', handleStockUpdate);
+      return () => window.removeEventListener('tailandia:stock_updated', handleStockUpdate);
+    }
   }, []);
 
   // Subcategorias disponíveis para a categoria atual

@@ -4,6 +4,7 @@ import React from 'react';
 import Header from '../components/Header';
 import CategoryPills from '../components/CategoryPills';
 import HeroSection from '../components/HeroSection';
+import FeaturedSection from '../components/FeaturedSection';
 import ProductGrid from '../components/ProductGrid';
 import InstagramSection from '../components/InstagramSection';
 import ReviewsSection from '../components/ReviewsSection';
@@ -19,11 +20,14 @@ export default function HomePage() {
       <CategoryPills />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Hero & Banners Promocionais */}
         <HeroSection />
 
-        {/* Catálogo de Produtos com Filtros e Ordenação */}
+        {/* Destaques Comerciais & Mais Vendidos */}
+        <FeaturedSection />
+
+        {/* Catálogo Completo de Produtos Sanitizados com Filtros */}
         <ProductGrid />
       </main>
 

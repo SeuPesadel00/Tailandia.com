@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ShoppingBag, MapPin, Search, Instagram, PhoneCall, Sparkles, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatBRL } from '../services/cart';
@@ -33,7 +34,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 py-2.5 sm:px-6 lg:px-8">
         {/* LOGO RESPONSIVO */}
         <div className="flex items-center gap-2">
-          <a href="#" className="group flex items-center gap-2">
+          <Link href="/" className="group flex items-center gap-2">
             <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105">
               <span className="text-base sm:text-xl font-black tracking-tighter text-slate-950">TL</span>
             </div>
@@ -48,7 +49,7 @@ export default function Header() {
                 Tabacaria & Bebidas
               </span>
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* SELETOR DE LOCALIZAÇÃO (DESKTOP) */}

@@ -89,13 +89,41 @@ export default function CheckoutPage() {
       .replace(/(\d{4})(?=\d)/g, '$1 ');
   };
 
+  const validarCPF = (cpf: string) => {
+    const clean = (cpf || '').replace(/\D/g, '');
+    if (clean.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(clean)) return false;
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+      soma += parseInt(clean.charAt(i), 10) * (10 - i);
+    }
+    let resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(clean.charAt(9), 10)) return false;
+
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+      soma += parseInt(clean.charAt(i), 10) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(clean.charAt(10), 10)) return false;
+
+    return true;
+  };
+
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     const cleanCpf = formData.docNumber.replace(/\D/g, '');
-    if (!formData.firstName || !formData.email || cleanCpf.length !== 11) {
-      setError('Por favor, informe seu nome, e-mail e um CPF válido com 11 dígitos.');
+    if (!formData.firstName || !formData.email) {
+      setError('Por favor, informe seu nome e e-mail.');
+      return;
+    }
+
+    if (!validarCPF(cleanCpf)) {
+      setError('CPF inválido. O Banco Central e o Mercado Pago exigem um CPF com dígitos verificadores válidos. Em ambiente de teste Sandbox, utilize: 191.191.191-00');
       return;
     }
 
@@ -440,7 +468,17 @@ export default function CheckoutPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-slate-400 mb-1">CPF (apenas números) *</label>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs text-slate-400">CPF (apenas números) *</label>
+                            <button
+                              type="button"
+                              onClick={() => setFormData((prev) => ({ ...prev, docNumber: '191.191.191-00' }))}
+                              className="text-[10px] text-amber-400 hover:text-amber-300 font-mono underline decoration-dotted"
+                              title="Preencher com CPF de teste homologado para Sandbox do Mercado Pago"
+                            >
+                              Usar CPF Sandbox
+                            </button>
+                          </div>
                           <input
                             type="text"
                             name="docNumber"
@@ -451,6 +489,9 @@ export default function CheckoutPage() {
                             required
                             className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none"
                           />
+                          <span className="text-[10px] text-slate-500 block mt-1">
+                            Exigido pelo BACEN / Mercado Pago. Para testes Sandbox: <span className="text-slate-400 font-mono">191.191.191-00</span>
+                          </span>
                         </div>
                       </div>
                     </div>
