@@ -14,8 +14,11 @@ export async function GET(request: Request) {
     const searchParam = (searchParams.get('busca') || searchParams.get('q') || '').trim().toLowerCase();
     const isFeaturedOnly = searchParams.get('destaque') === 'true';
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmcnpfetuhij.supabase.co';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmncpfetuhij.supabase.co';
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnZ2dkYXd3a21uY3BmZXR1aGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4NTUyNjgsImV4cCI6MjEwNjQzMTI2OH0.1uXP6pHtcdfKlmuB1rIcnhVQf9uCT3Yb9iyIuo9hZNc';
 
     let rawProducts: any[] = [];
 
