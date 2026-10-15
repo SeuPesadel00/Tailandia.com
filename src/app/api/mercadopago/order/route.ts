@@ -34,7 +34,6 @@ export async function POST(request: Request) {
       processing_mode: 'automatic',
       total_amount: totalAmount,
       external_reference: extRef,
-      notification_url: 'https://tailandia-com-6f82.vercel.app/api/mercadopago/webhook',
       payer: {
         email,
         first_name: firstName,

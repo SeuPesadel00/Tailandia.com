@@ -132,7 +132,6 @@ export async function createMercadoPagoOrder(params: CreateOrderParams): Promise
     processing_mode: 'automatic',
     total_amount: formattedAmount,
     external_reference: String(params.vendaId),
-    notification_url: 'https://tailandia-com-6f82.vercel.app/api/mercadopago/webhook',
     payer: {
       email: params.email,
       first_name: firstName,
