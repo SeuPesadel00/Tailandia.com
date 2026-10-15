@@ -248,8 +248,10 @@ export function validateWebhookSignature(
 
     const manifest = parts.join(';') + ';';
     const computed = crypto.createHmac('sha256', effectiveSecret).update(manifest).digest('hex');
-
-    return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(v1Hash));
+    const bufComputed = Buffer.from(computed);
+    const bufHash = Buffer.from(v1Hash);
+    if (bufComputed.length !== bufHash.length) return false;
+    return crypto.timingSafeEqual(bufComputed, bufHash);
   } catch {
     return false;
   }
