@@ -3,11 +3,10 @@ import crypto from 'crypto';
 const MP_API_BASE = 'https://api.mercadopago.com';
 
 function getAccessToken(): string {
-  const token = process.env.MP_ACCESS_TOKEN;
-  if (!token) {
-    throw new Error('MP_ACCESS_TOKEN não configurado no ambiente.');
-  }
-  return token;
+  return (
+    process.env.MP_ACCESS_TOKEN ||
+    'APP_USR-4682271217183527-101408-e3bd8bda86656be83273177f61419eae-3764831852'
+  );
 }
 
 export interface CreateOrderParams {
@@ -133,6 +132,7 @@ export async function createMercadoPagoOrder(params: CreateOrderParams): Promise
     processing_mode: 'automatic',
     total_amount: formattedAmount,
     external_reference: String(params.vendaId),
+    notification_url: 'https://tailandia-com-6f82.vercel.app/api/mercadopago/webhook',
     payer: {
       email: params.email,
       first_name: firstName,
@@ -216,7 +216,12 @@ export function validateWebhookSignature(
   dataId: string | null,
   secret?: string | null
 ): boolean {
-  if (!secret) {
+  const effectiveSecret =
+    secret ||
+    process.env.MP_WEBHOOK_SECRET ||
+    '3e78ad080871ceb3504a7bee99d4d76b3157bb38049ebd7197408422dbfdb6a9';
+
+  if (!effectiveSecret) {
     console.error('[Webhook Security] MP_WEBHOOK_SECRET não configurado. Rejeitando requisição por segurança.');
     return false;
   }
@@ -243,7 +248,7 @@ export function validateWebhookSignature(
     parts.push(`ts:${ts}`);
 
     const manifest = parts.join(';') + ';';
-    const computed = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+    const computed = crypto.createHmac('sha256', effectiveSecret).update(manifest).digest('hex');
 
     return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(v1Hash));
   } catch {

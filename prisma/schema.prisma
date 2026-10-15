@@ -66,6 +66,11 @@ model Venda {
   estorno_info        Json?
   num_nfe             Int?
   serie_nfe           Int?          @default(1)
+  origem              String?       @default("SITE") @db.VarChar(20)
+  store_id            String?       @default("setor-o") @db.VarChar(50)
+  terminal_id         String?       @default("01") @db.VarChar(50)
+  mp_order_id         String?       @db.VarChar(100)
+  updated_at          DateTime?     @db.Timestamp(6)
   criado_em           DateTime?     @default(now()) @db.Timestamp(6)
   itens               VendaItem[]
   

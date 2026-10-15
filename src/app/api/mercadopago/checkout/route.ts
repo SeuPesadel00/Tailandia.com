@@ -31,7 +31,15 @@ async function fetchProductRest(ean: string, id?: number) {
 }
 
 async function insertVendaRest(
-  payload: { total: number; metodo_pagamento: string; status: string; cpf_cnpj_cliente: string },
+  payload: {
+    total: number;
+    metodo_pagamento: string;
+    status: string;
+    cpf_cnpj_cliente: string;
+    origem?: string;
+    store_id?: string;
+    terminal_id?: string;
+  },
   itens: Array<{ produto_ean: string; quantidade: number; preco_unitario: number; produto_nome: string }>
 ): Promise<number | null> {
   try {
@@ -258,6 +266,7 @@ export async function POST(request: Request) {
           metodo_pagamento: paymentMethod === 'credit_card' ? 'CARTAO_CREDITO' : 'PIX',
           status: 'PENDENTE',
           cpf_cnpj_cliente: cleanDoc,
+          origem: 'SITE',
           itens: {
             create: sanitizedItems.map((item) => ({
               produto_ean: item.ean,
@@ -277,6 +286,7 @@ export async function POST(request: Request) {
           metodo_pagamento: paymentMethod === 'credit_card' ? 'CARTAO_CREDITO' : 'PIX',
           status: 'PENDENTE',
           cpf_cnpj_cliente: cleanDoc,
+          origem: 'SITE',
         },
         sanitizedItems.map((item) => ({
           produto_ean: item.ean,
@@ -321,6 +331,20 @@ export async function POST(request: Request) {
       installments: Number(installments) || 1,
       idempotencyKey: `venda-${vendaId}-${serverTotal.toFixed(2)}-${paymentMethod}`,
     });
+
+    // Salva mp_order_id no Supabase para polling instantâneo
+    if (vendaId && orderData?.id) {
+      fetch(`${SUPABASE_REST_URL}/rest/v1/vendas?id=eq.${vendaId}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ mp_order_id: orderData.id, origem: 'SITE' })
+      }).catch(() => {});
+    }
 
     const paymentInfo = orderData.transactions?.payments?.[0];
 
