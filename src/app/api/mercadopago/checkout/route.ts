@@ -1,14 +1,74 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
-import { createClient } from '@supabase/supabase-js';
 import { createMercadoPagoOrder, validarCPF } from '../../../../services/mercadopagoOrders';
 import { REAL_TAILANDIA_PRODUCTS } from '../../../../services/products';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmncpfetuhij.supabase.co';
-const supabaseServiceKey =
+const SUPABASE_REST_URL = (
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmncpfetuhij.supabase.co'
+).replace(/rgggdawwkmcnpfetuhij/g, 'rgggdawwkmncpfetuhij');
+
+const SUPABASE_ANON_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnZ2dkYXd3a21uY3BmZXR1aGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4NTUyNjgsImV4cCI6MjEwNjQzMTI2OH0.1uXP6pHtcdfKlmuB1rIcnhVQf9uCT3Yb9iyIuo9hZNc';
+
+async function fetchProductRest(ean: string, id?: number) {
+  try {
+    const filter = id ? `or=(ean.eq.${encodeURIComponent(ean)},id.eq.${id})` : `ean=eq.${encodeURIComponent(ean)}`;
+    const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/produtos?${filter}&select=id,ean,nome,preco_venda,estoque_atual,ativo&limit=1`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      cache: 'no-store'
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data) && data.length > 0 ? data[0] : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+async function insertVendaRest(
+  payload: { total: number; metodo_pagamento: string; status: string; cpf_cnpj_cliente: string },
+  itens: Array<{ produto_ean: string; quantidade: number; preco_unitario: number; produto_nome: string }>
+): Promise<number | null> {
+  try {
+    const res = await fetch(`${SUPABASE_REST_URL}/rest/v1/vendas`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      console.error('[Checkout REST] Erro ao criar venda:', res.status, await res.text());
+      return null;
+    }
+    const data = await res.json();
+    const vendaId = Array.isArray(data) && data[0] ? data[0].id : null;
+    if (vendaId && itens.length > 0) {
+      await fetch(`${SUPABASE_REST_URL}/rest/v1/vendas_itens`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(itens.map((i) => ({ ...i, venda_id: vendaId })))
+      }).catch((e) => console.warn('[Checkout REST Itens] Aviso:', e));
+    }
+    return vendaId;
+  } catch (err: any) {
+    console.error('[Checkout REST] Exceção ao inserir venda:', err.message);
+    return null;
+  }
+}
+
 
 export async function POST(request: Request) {
   try {
@@ -72,8 +132,6 @@ export async function POST(request: Request) {
       preco_unitario: number;
     }> = [];
 
-    const sbClient = (supabaseUrl && supabaseServiceKey) ? createClient(supabaseUrl, supabaseServiceKey) : null;
-
     for (const item of items) {
       const ean = String(item.ean || '').trim();
       const requestedQty = Math.max(1, parseInt(item.quantity, 10) || 1);
@@ -101,18 +159,8 @@ export async function POST(request: Request) {
       }
 
       // Fallback Supabase REST
-      if (!dbProd && sbClient) {
-        try {
-          const { data } = await sbClient
-            .from('produtos')
-            .select('id, ean, nome, preco_venda, estoque_atual, ativo')
-            .or(`ean.eq.${ean}${item.id ? `,id.eq.${item.id}` : ''}`)
-            .limit(1)
-            .maybeSingle();
-          if (data) dbProd = data;
-        } catch (sbErr: any) {
-          console.warn('[Checkout] Aviso ao consultar no Supabase REST:', sbErr.message);
-        }
+      if (!dbProd) {
+        dbProd = await fetchProductRest(ean, item.id ? Number(item.id) : undefined);
       }
 
       // Fallback Catálogo Base Tailândia (Garante disponibilidade de itens do catálogo)
@@ -222,35 +270,21 @@ export async function POST(request: Request) {
       });
       vendaId = venda.id;
     } catch (dbErr: any) {
-      console.warn('[Checkout] Tentando fallback para Supabase REST:', dbErr.message);
-      if (sbClient) {
-        try {
-          const { data: vData, error: vErr } = await sbClient
-            .from('vendas')
-            .insert({
-              total: serverTotal,
-              metodo_pagamento: paymentMethod === 'credit_card' ? 'CARTAO_CREDITO' : 'PIX',
-              status: 'PENDENTE',
-              cpf_cnpj_cliente: cleanDoc,
-            })
-            .select('id')
-            .single();
-
-          if (!vErr && vData) {
-            vendaId = vData.id;
-            const itensPayload = sanitizedItems.map((item) => ({
-              venda_id: vendaId,
-              produto_ean: item.ean,
-              quantidade: item.quantidade,
-              preco_unitario: item.preco_unitario,
-              produto_nome: item.nome.slice(0, 255),
-            }));
-            await sbClient.from('vendas_itens').insert(itensPayload);
-          }
-        } catch (sbEx: any) {
-          console.error('[Checkout] Falha total na persistência:', sbEx.message);
-        }
-      }
+      console.warn('[Checkout] Prisma falhou, acionando fallback Supabase REST:', dbErr.message);
+      vendaId = await insertVendaRest(
+        {
+          total: serverTotal,
+          metodo_pagamento: paymentMethod === 'credit_card' ? 'CARTAO_CREDITO' : 'PIX',
+          status: 'PENDENTE',
+          cpf_cnpj_cliente: cleanDoc,
+        },
+        sanitizedItems.map((item) => ({
+          produto_ean: item.ean,
+          quantidade: item.quantidade,
+          preco_unitario: item.preco_unitario,
+          produto_nome: item.nome.slice(0, 255),
+        }))
+      );
     }
 
     // FAIL-CLOSED: Nunca cobra no Mercado Pago se o banco falhou

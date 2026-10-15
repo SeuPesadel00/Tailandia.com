@@ -14,7 +14,9 @@ export async function GET(request: Request) {
     const searchParam = (searchParams.get('busca') || searchParams.get('q') || '').trim().toLowerCase();
     const isFeaturedOnly = searchParams.get('destaque') === 'true';
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmncpfetuhij.supabase.co';
+    const supabaseUrl = (
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://rgggdawwkmncpfetuhij.supabase.co'
+    ).replace(/rgggdawwkmcnpfetuhij/g, 'rgggdawwkmncpfetuhij');
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
