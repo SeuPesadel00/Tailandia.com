@@ -18,7 +18,10 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 export default function CartDrawer() {
+  const router = useRouter();
   const {
     items,
     isCartOpen,
@@ -28,6 +31,8 @@ export default function CartDrawer() {
     clearCart,
     deliveryType,
     setDeliveryType,
+    customerName,
+    setCustomerName,
     couponCode,
     discount,
     applyCoupon,
@@ -41,7 +46,6 @@ export default function CartDrawer() {
 
   const [inputCoupon, setInputCoupon] = useState('');
   const [couponError, setCouponError] = useState('');
-  const [customerName, setCustomerName] = useState('');
 
   if (!isCartOpen) return null;
 
@@ -77,7 +81,11 @@ export default function CartDrawer() {
 
   const handleWebCheckout = () => {
     setIsCartOpen(false);
-    window.location.href = '/checkout';
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tailandia_delivery_type', deliveryType);
+      localStorage.setItem('tailandia_customer_name', customerName);
+    }
+    router.push('/checkout');
   };
 
   return (

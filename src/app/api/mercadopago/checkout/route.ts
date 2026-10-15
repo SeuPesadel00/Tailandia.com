@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 import { createMercadoPagoOrder, validarCPF } from '../../../../services/mercadopagoOrders';
+import { REAL_TAILANDIA_PRODUCTS } from '../../../../services/products';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -78,26 +79,63 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: 'Item no carrinho sem código de barras (EAN).' }, { status: 400 });
       }
 
-      // Busca produto no banco
+      // Busca produto no banco por EAN, ID ou Nome
       let dbProd: { id: number; ean: string; nome: string; preco_venda: any; estoque_atual: number | null; ativo: boolean | null } | null = null;
 
       try {
-        dbProd = await prisma.produto.findUnique({
-          where: { ean },
+        dbProd = await prisma.produto.findFirst({
+          where: {
+            OR: [
+              ...(ean ? [{ ean }] : []),
+              ...(item.id && !isNaN(Number(item.id)) ? [{ id: Number(item.id) }, { wp_id: Number(item.id) }] : []),
+              ...(item.title ? [{ nome: { contains: item.title, mode: 'insensitive' as const } }] : [])
+            ]
+          },
           select: { id: true, ean: true, nome: true, preco_venda: true, estoque_atual: true, ativo: true }
         }) as any;
-      } catch {
-        if (sbClient) {
+      } catch (prismaErr: any) {
+        console.warn('[Checkout] Aviso ao consultar produto no Prisma:', prismaErr.message);
+      }
+
+      // Fallback Supabase REST
+      if (!dbProd && sbClient) {
+        try {
           const { data } = await sbClient
             .from('produtos')
             .select('id, ean, nome, preco_venda, estoque_atual, ativo')
-            .eq('ean', ean)
-            .single();
+            .or(`ean.eq.${ean}${item.id ? `,id.eq.${item.id}` : ''}`)
+            .limit(1)
+            .maybeSingle();
           if (data) dbProd = data;
+        } catch (sbErr: any) {
+          console.warn('[Checkout] Aviso ao consultar no Supabase REST:', sbErr.message);
+        }
+      }
+
+      // Fallback Catálogo Base Tailândia (Garante disponibilidade de itens do catálogo)
+      if (!dbProd) {
+        const fallback = REAL_TAILANDIA_PRODUCTS.find(
+          (p) =>
+            (ean && String(p.ean) === ean) ||
+            (item.id && p.id === Number(item.id)) ||
+            (item.title && p.nome.toLowerCase().includes(item.title.toLowerCase())) ||
+            (item.title && item.title.toLowerCase().includes(p.nome.toLowerCase()))
+        );
+        if (fallback) {
+          dbProd = {
+            id: fallback.id,
+            ean: String(fallback.ean),
+            nome: fallback.nome,
+            preco_venda: fallback.preco_venda,
+            estoque_atual: fallback.estoque_atual,
+            ativo: fallback.ativo !== false,
+          };
+          console.log(`[Checkout] Produto "${item.title || ean}" resolvido via catálogo base.`);
         }
       }
 
       if (!dbProd || dbProd.ativo === false) {
+        console.error(`[Checkout Error] Produto não encontrado ou inativo: EAN=${ean}, ID=${item.id}, Title=${item.title}`);
         return NextResponse.json({
           success: false,
           message: `O produto "${item.title || ean}" não está disponível para venda no momento.`
@@ -222,6 +260,16 @@ export async function POST(request: Request) {
     }
 
     // 6. Chamada à API oficial de Orders do Mercado Pago (/v1/orders)
+    console.log('[MercadoPago Orders Request]', {
+      vendaId,
+      total: serverTotal,
+      email: email.trim(),
+      payer: `${firstName} ${lastName}`,
+      docNumber: cleanDoc.slice(0, 3) + '***',
+      paymentMethod,
+      itemsCount: sanitizedItems.length,
+    });
+
     const orderData = await createMercadoPagoOrder({
       vendaId,
       total: serverTotal,
@@ -238,6 +286,13 @@ export async function POST(request: Request) {
     });
 
     const paymentInfo = orderData.transactions?.payments?.[0];
+
+    console.log('[MercadoPago Orders Response]', {
+      orderId: orderData.id,
+      status: orderData.status,
+      paymentStatus: paymentInfo?.status,
+      vendaId,
+    });
 
     // Resposta para PIX
     if (paymentMethod === 'pix') {

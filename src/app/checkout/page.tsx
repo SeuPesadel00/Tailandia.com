@@ -55,6 +55,8 @@ export default function CheckoutPage() {
     discount,
     deliveryType,
     setDeliveryType,
+    customerName,
+    setCustomerName,
     couponCode,
     clearCart,
   } = useCart();
@@ -72,6 +74,39 @@ export default function CheckoutPage() {
     bairro: 'Taguatinga',
     complemento: '',
   });
+
+  // Reidratação automática de estado compartilhado (Nome e Modalidade da Sidebar / LocalStorage)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedType = localStorage.getItem('tailandia_delivery_type');
+      if (savedType === 'RETIRADA' || savedType === 'DELIVERY') {
+        setDeliveryType(savedType);
+      }
+
+      const storedName = customerName || localStorage.getItem('tailandia_customer_name') || '';
+      const savedFormRaw = localStorage.getItem('tailandia_checkout_form');
+      let savedForm: any = {};
+      try {
+        if (savedFormRaw) savedForm = JSON.parse(savedFormRaw);
+      } catch {}
+
+      let fName = savedForm.firstName || '';
+      let lName = savedForm.lastName || '';
+
+      if (!fName && storedName) {
+        const parts = storedName.trim().split(/\s+/);
+        fName = parts[0] || '';
+        lName = parts.slice(1).join(' ') || '';
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        ...savedForm,
+        firstName: fName || prev.firstName,
+        lastName: lName || prev.lastName,
+      }));
+    }
+  }, [customerName, setDeliveryType]);
 
   // Estado para Cartão de Crédito
   const [cardData, setCardData] = useState({
@@ -154,7 +189,17 @@ export default function CheckoutPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('tailandia_checkout_form', JSON.stringify(updated));
+        if (name === 'firstName' || name === 'lastName') {
+          const fullName = `${name === 'firstName' ? value : updated.firstName} ${name === 'lastName' ? value : updated.lastName}`.trim();
+          setCustomerName(fullName);
+        }
+      }
+      return updated;
+    });
   };
 
   const handleCardChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -584,7 +629,10 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
-                        onClick={() => setDeliveryType('DELIVERY')}
+                        onClick={() => {
+                          setDeliveryType('DELIVERY');
+                          if (typeof window !== 'undefined') localStorage.setItem('tailandia_delivery_type', 'DELIVERY');
+                        }}
                         className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border font-bold text-xs sm:text-sm transition ${
                           deliveryType === 'DELIVERY'
                             ? 'border-amber-500 bg-amber-500/15 text-amber-400 shadow-md shadow-amber-500/10'
@@ -597,7 +645,10 @@ export default function CheckoutPage() {
 
                       <button
                         type="button"
-                        onClick={() => setDeliveryType('RETIRADA')}
+                        onClick={() => {
+                          setDeliveryType('RETIRADA');
+                          if (typeof window !== 'undefined') localStorage.setItem('tailandia_delivery_type', 'RETIRADA');
+                        }}
                         className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border font-bold text-xs sm:text-sm transition ${
                           deliveryType === 'RETIRADA'
                             ? 'border-amber-500 bg-amber-500/15 text-amber-400 shadow-md shadow-amber-500/10'

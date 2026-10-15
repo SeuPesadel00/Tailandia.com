@@ -14,6 +14,8 @@ interface CartContextType {
   setIsCartOpen: (open: boolean) => void;
   deliveryType: 'DELIVERY' | 'RETIRADA';
   setDeliveryType: (type: 'DELIVERY' | 'RETIRADA') => void;
+  customerName: string;
+  setCustomerName: (name: string) => void;
   couponCode: string;
   discount: number;
   applyCoupon: (code: string) => { success: boolean; message: string };
@@ -52,7 +54,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'RETIRADA'>('DELIVERY');
+  const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'RETIRADA'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('tailandia_delivery_type');
+      if (saved === 'RETIRADA' || saved === 'DELIVERY') return saved;
+    }
+    return 'DELIVERY';
+  });
+
+  const [customerName, setCustomerName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tailandia_customer_name') || '';
+    }
+    return '';
+  });
+
   const [couponCode, setCouponCode] = useState('');
   const [discountPct, setDiscountPct] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState('Taguatinga Norte / Brasília - DF');
@@ -62,12 +78,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [activeCategory, setActiveCategory] = useState('TODAS');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Persiste no localStorage
+  // Persiste carrinho, modalidade e nome do cliente no localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('tailandia_cart', JSON.stringify(items));
     }
   }, [items]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tailandia_delivery_type', deliveryType);
+    }
+  }, [deliveryType]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tailandia_customer_name', customerName);
+    }
+  }, [customerName]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -230,6 +258,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsCartOpen,
         deliveryType,
         setDeliveryType,
+        customerName,
+        setCustomerName,
         couponCode,
         discount,
         applyCoupon,
