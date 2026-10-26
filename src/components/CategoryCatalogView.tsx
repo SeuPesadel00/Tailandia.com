@@ -189,44 +189,44 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
   return (
     <div className="space-y-6">
       {/* Breadcrumb navegável */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-400">
-        <Link href="/" className="flex items-center gap-1 hover:text-white transition">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-[#A0AAB2]">
+        <Link href="/" className="flex items-center gap-1 hover:text-[#00E5FF] transition">
           <Home size={13} />
           <span>Início</span>
         </Link>
-        <ChevronRight size={12} className="text-slate-600" />
+        <ChevronRight size={12} className="text-white/30" />
         <span className="font-semibold text-white">{categoryMeta.label}</span>
         {selectedSubcategory !== 'TODAS' && (
           <>
-            <ChevronRight size={12} className="text-slate-600" />
-            <span className="text-emerald-400 font-medium">{selectedSubcategory}</span>
+            <ChevronRight size={12} className="text-white/30" />
+            <span className="text-[#00E5FF] font-medium">{selectedSubcategory}</span>
           </>
         )}
       </nav>
 
       {/* Hero Banner Temático da Categoria */}
-      <div className={`relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br ${categoryMeta.bannerGradient} p-6 sm:p-8 shadow-2xl`}>
+      <div className="tai-card relative overflow-hidden !p-6 sm:!p-8 border-[#00E5FF]/30 bg-[#0A192F]/85 shadow-[0_10px_35px_rgba(0,0,0,0.6)]">
+        <div className="absolute top-0 right-10 w-64 h-64 bg-[#00E5FF]/10 blur-[90px] rounded-full pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-4">
             <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-xl border border-white/10"
-              style={{ backgroundColor: `${categoryMeta.color}25`, color: categoryMeta.color }}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-xl border border-[#00E5FF]/30 bg-[#050B14]/80 text-[#00E5FF]"
             >
               {getCategoryIcon(categoryMeta.icon)}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                  Categoria Exclusiva
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF] bg-[#00E5FF]/10 px-2.5 py-0.5 rounded-full border border-[#00E5FF]/30">
+                  Categoria Oficial
                 </span>
-                <span className="text-xs text-slate-400">
-                  {filteredProducts.length} itens vendáveis
+                <span className="text-xs text-[#A0AAB2]">
+                  {filteredProducts.length} itens disponíveis
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight mt-1">
                 {categoryMeta.label}
               </h1>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
+              <p className="text-xs sm:text-sm text-[#A0AAB2] max-w-2xl mt-1">
                 {categoryMeta.descricao}
               </p>
             </div>
@@ -239,10 +239,10 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           <button
             onClick={() => updateQueryParam('sub', 'TODAS')}
-            className={`shrink-0 rounded-xl px-4 py-2 text-xs font-semibold transition ${
+            className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all ${
               selectedSubcategory === 'TODAS'
-                ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:text-white'
+                ? 'bg-[#00E5FF] text-[#050B14] shadow-[0_0_12px_rgba(0,229,255,0.45)]'
+                : 'border border-[#00E5FF]/20 bg-[#0A192F]/80 text-[#A0AAB2] hover:border-[#00E5FF] hover:text-white'
             }`}
           >
             Todas as Subcategorias
@@ -253,10 +253,10 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
               <button
                 key={sub}
                 onClick={() => updateQueryParam('sub', sub)}
-                className={`shrink-0 rounded-xl px-4 py-2 text-xs font-semibold transition ${
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-all ${
                   isSelected
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:text-white'
+                    ? 'bg-[#00E5FF] text-[#050B14] shadow-[0_0_12px_rgba(0,229,255,0.45)]'
+                    : 'border border-[#00E5FF]/20 bg-[#0A192F]/80 text-[#A0AAB2] hover:border-[#00E5FF] hover:text-white'
                 }`}
               >
                 {sub}
@@ -267,40 +267,40 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
       )}
 
       {/* Barra de Filtros e Ordenação */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/50 p-3.5 backdrop-blur-md">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#00E5FF]/20 bg-[#0A192F]/80 p-3.5 backdrop-blur-md">
+        <div className="flex items-center gap-2 text-xs text-[#A0AAB2]">
           <span>Mostrando <strong>{displayedProducts.length}</strong> de <strong>{filteredProducts.length}</strong> produtos</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Ordenar por */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/80 px-3 py-1.5 text-xs text-slate-300">
-            <ArrowUpDown className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 rounded-full border border-[#00E5FF]/30 bg-[#050B14]/80 px-3 py-1.5 text-xs text-[#A0AAB2]">
+            <ArrowUpDown className="h-3.5 w-3.5 text-[#00E5FF]" />
             <select
               value={sortBy}
               onChange={(e) => updateQueryParam('ordem', e.target.value)}
               className="bg-transparent text-white focus:outline-none cursor-pointer text-xs"
             >
-              <option value="destaque" className="bg-slate-900 text-white">Mais Vendidos</option>
-              <option value="menor-preco" className="bg-slate-900 text-white">Menor Preço</option>
-              <option value="maior-preco" className="bg-slate-900 text-white">Maior Preço</option>
-              <option value="alfabetica" className="bg-slate-900 text-white">Ordem Alfabética</option>
+              <option value="destaque" className="bg-[#0A192F] text-white">Mais Vendidos</option>
+              <option value="menor-preco" className="bg-[#0A192F] text-white">Menor Preço</option>
+              <option value="maior-preco" className="bg-[#0A192F] text-white">Maior Preço</option>
+              <option value="alfabetica" className="bg-[#0A192F] text-white">Ordem Alfabética</option>
             </select>
           </div>
 
           {/* Faixa de Preço */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/80 px-3 py-1.5 text-xs text-slate-300">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 rounded-full border border-[#00E5FF]/30 bg-[#050B14]/80 px-3 py-1.5 text-xs text-[#A0AAB2]">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-[#00E5FF]" />
             <select
               value={selectedPriceRange}
               onChange={(e) => updateQueryParam('preco', e.target.value)}
               className="bg-transparent text-white focus:outline-none cursor-pointer text-xs"
             >
-              <option value="TODOS" className="bg-slate-900 text-white">Todas as faixas</option>
-              <option value="ate25" className="bg-slate-900 text-white">Até R$ 25</option>
-              <option value="25a60" className="bg-slate-900 text-white">R$ 25 a R$ 60</option>
-              <option value="60a120" className="bg-slate-900 text-white">R$ 60 a R$ 120</option>
-              <option value="120mais" className="bg-slate-900 text-white">Acima de R$ 120</option>
+              <option value="TODOS" className="bg-[#0A192F] text-white">Todas as faixas</option>
+              <option value="ate25" className="bg-[#0A192F] text-white">Até R$ 25</option>
+              <option value="25a60" className="bg-[#0A192F] text-white">R$ 25 a R$ 60</option>
+              <option value="60a120" className="bg-[#0A192F] text-white">R$ 60 a R$ 120</option>
+              <option value="120mais" className="bg-[#0A192F] text-white">Acima de R$ 120</option>
             </select>
           </div>
         </div>
@@ -315,12 +315,12 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
         </div>
       ) : (
         /* Estado Vazio */
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-slate-900/30 p-12 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800/80 text-slate-500 mb-4">
+        <div className="tai-card flex flex-col items-center justify-center p-12 text-center border-dashed border-[#00E5FF]/30 bg-[#0A192F]/50">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#00E5FF]/10 text-[#00E5FF] mb-4">
             <PackageOpen className="h-8 w-8" />
           </div>
-          <h3 className="text-base font-bold text-white mb-1">Nenhum item encontrado nesta categoria</h3>
-          <p className="text-xs text-slate-400 max-w-sm mb-5">
+          <h3 className="text-base font-bold text-white mb-1 font-display">Nenhum item encontrado nesta categoria</h3>
+          <p className="text-xs text-[#A0AAB2] max-w-sm mb-5">
             Não encontramos produtos para os filtros selecionados. Tente selecionar outra subcategoria ou limpar os filtros.
           </p>
           <button
@@ -328,7 +328,7 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
               updateQueryParam('sub', 'TODAS');
               updateQueryParam('preco', 'TODOS');
             }}
-            className="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-xs font-bold text-slate-950 transition shadow-lg shadow-emerald-500/20"
+            className="tai-btn-primary !px-5 !py-2.5 text-xs font-bold"
           >
             Limpar Filtros da Categoria
           </button>
@@ -340,7 +340,7 @@ function CategoryCatalogContent({ categorySlug }: CategoryCatalogViewProps) {
         <div className="mt-8 flex justify-center pb-8">
           <button
             onClick={() => setVisibleCount((prev) => prev + 20)}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-3 text-xs font-bold text-slate-200 shadow-lg hover:border-emerald-500 hover:text-emerald-400 transition"
+            className="tai-btn-outline !px-6 !py-3 text-xs font-bold"
           >
             Ver mais produtos ({filteredProducts.length - visibleCount} restantes)
           </button>
