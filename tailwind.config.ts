@@ -1,5 +1,34 @@
 import type { Config } from "tailwindcss";
 
+/* Design System TAILÂNDIA — ciano neon (accent) e azul-marinho (superfícies) */
+const brandCyan = {
+  50: "#ECFEFF",
+  100: "#CFFAFE",
+  200: "#A5F6FF",
+  300: "#6DEFFF",
+  400: "#2EEBFF",
+  500: "#00E5FF",
+  600: "#00B8D4",
+  700: "#008CA3",
+  800: "#006478",
+  900: "#0A3F52",
+  950: "#062433",
+};
+
+const brandNavy = {
+  50: "#F3F7FA",
+  100: "#E4ECF2",
+  200: "#CDD8E1",
+  300: "#C0C8CE",
+  400: "#A0AAB2",
+  500: "#76838F",
+  600: "#3D5069",
+  700: "#1A3350",
+  800: "#10253E",
+  900: "#0A192F",
+  950: "#050B14",
+};
+
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,40 +39,51 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#090d16",
-        foreground: "#f8fafc",
+        // Paletas remapeadas para a identidade visual TAILÂNDIA
+        slate: brandNavy,
+        cyan: brandCyan,
+        emerald: brandCyan,
+        teal: brandCyan,
+        green: brandCyan,
+        amber: brandCyan,
+        background: "#050B14",
+        foreground: "#FFFFFF",
         card: {
-          DEFAULT: "#0f172a",
-          foreground: "#f8fafc",
-          border: "#1e293b",
+          DEFAULT: "#0A192F",
+          foreground: "#FFFFFF",
+          border: "#10304A",
         },
         primary: {
-          DEFAULT: "#10b981", // Emerald Neon
-          hover: "#059669",
-          foreground: "#ffffff",
+          DEFAULT: "#00E5FF", // Ciano Neon
+          hover: "#00B8D4",
+          foreground: "#050B14",
         },
         secondary: {
-          DEFAULT: "#f59e0b", // Amber/Gold
-          hover: "#d97706",
-          foreground: "#ffffff",
+          DEFAULT: "#6DEFFF",
+          hover: "#2EEBFF",
+          foreground: "#050B14",
         },
         accent: {
-          DEFAULT: "#06b6d4", // Cyan
-          hover: "#0891b2",
-          foreground: "#ffffff",
+          DEFAULT: "#00E5FF",
+          hover: "#00B8D4",
+          foreground: "#050B14",
         },
         destructive: {
-          DEFAULT: "#ef4444",
+          DEFAULT: "#FF3366",
           foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "#1e293b",
-          foreground: "#94a3b8",
+          DEFAULT: "#10253E",
+          foreground: "#A0AAB2",
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-outfit)", "system-ui", "sans-serif"],
+        sans: ["Poppins", "var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["Montserrat", "var(--font-outfit)", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        "neon-sm": "0 0 10px rgba(0, 229, 255, 0.35)",
+        "neon-md": "0 0 20px rgba(0, 229, 255, 0.55)",
       },
       keyframes: {
         "accordion-down": {

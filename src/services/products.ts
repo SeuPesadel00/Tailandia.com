@@ -625,7 +625,7 @@ export const CATEGORIES_CONFIG: Record<string, CategoryMeta> = {
 };
 
 export const CATEGORIES_LIST = [
-  { id: 'TODAS', slug: '', label: 'Todos os Produtos', icon: 'Sparkles', color: '#10b981' },
+  { id: 'TODAS', slug: '', label: 'Todos os Produtos', icon: 'Sparkles', color: '#00E5FF' },
   { id: 'Combos', slug: 'combos', label: 'Combos & Kits', icon: 'Flame', color: '#f59e0b' },
   { id: 'Cervejas', slug: 'cervejas', label: 'Cervejas Geladas', icon: 'Beer', color: '#06b6d4' },
   { id: 'Destilados', slug: 'destilados', label: 'Whiskies & Destilados', icon: 'Wine', color: '#8b5cf6' },
@@ -668,7 +668,7 @@ export function getCategoryBySlug(slug: string): CategoryMeta {
     slug: cleanSlug,
     label: labelNormalizado,
     icon: 'Sparkles',
-    color: '#10b981',
+    color: '#00E5FF',
     descricao: `Confira todos os itens disponíveis na categoria ${labelNormalizado}.`,
     bannerGradient: 'from-slate-900 via-slate-950 to-slate-900',
     dbCategories: [labelNormalizado],

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShoppingBag, MapPin, Search, Instagram, PhoneCall, Sparkles, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatBRL } from '../services/cart';
+import BrandMark from './BrandMark';
 
 export default function Header() {
   const {
@@ -23,9 +24,9 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
       {/* Top Banner Informativo com scroll suave em telas menores */}
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 px-3 py-1 text-center text-[11px] sm:text-xs font-semibold text-white shadow-inner">
+      <div className="bg-gradient-to-r from-cyan-700 via-cyan-600 to-cyan-700 px-3 py-1 text-center text-[11px] sm:text-xs font-semibold text-slate-950 shadow-inner">
         <span className="inline-flex items-center gap-1.5 truncate max-w-full">
-          <Sparkles size={12} className="shrink-0 text-amber-300" />
+          <Sparkles size={12} className="shrink-0 text-slate-950" />
           <strong className="tracking-wide">ENTREGA 24H EM TAGUATINGA & CEILÂNDIA</strong>
           <span className="hidden sm:inline">• Bebidas trincando de geladas • Frete Grátis acima de R$ 150</span>
         </span>
@@ -34,19 +35,18 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 py-2.5 sm:px-6 lg:px-8">
         {/* LOGO RESPONSIVO */}
         <div className="flex items-center gap-2">
-          <Link href="/" className="group flex items-center gap-2">
-            <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105">
-              <span className="text-base sm:text-xl font-black tracking-tighter text-slate-950">TL</span>
-            </div>
+          <Link href="/" className="group flex items-center gap-3">
+            <BrandMark className="h-8 w-12 sm:h-10 sm:w-14 transition-transform group-hover:scale-105" />
             <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <span className="text-base sm:text-xl font-black tracking-wider text-white">TAILÂNDIA</span>
-                <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold text-amber-400 border border-amber-500/30">
+              <div className="flex items-center gap-1.5">
+                <span className="font-display text-base sm:text-xl font-extrabold tracking-[0.18em] text-white leading-none">TAILÂNDIA</span>
+                <span className="rounded-full bg-cyan-500/15 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-cyan-400 border border-cyan-500/40">
                   24H
                 </span>
               </div>
-              <span className="hidden sm:inline text-[10px] font-medium tracking-widest text-emerald-400 uppercase">
-                Tabacaria & Bebidas
+              <span className="mt-1 hidden sm:block h-0.5 w-full bg-cyan-500 shadow-[0_0_8px_#00E5FF]" />
+              <span className="hidden sm:inline mt-0.5 text-[10px] font-medium tracking-[0.22em] text-slate-400 uppercase">
+                Bebidas & Tabacaria
               </span>
             </div>
           </Link>
@@ -77,7 +77,7 @@ export default function Header() {
             placeholder="Buscar whisky, cerveja, essência, combos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-slate-800 bg-slate-900/80 py-2 pl-9 pr-8 text-xs text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-full border border-slate-700 bg-slate-900/80 py-2 pl-9 pr-8 text-xs text-white placeholder-slate-400 transition-all focus:border-cyan-500 focus:bg-slate-900 focus:outline-none focus:shadow-neon-sm"
           />
           {searchQuery && (
             <button
@@ -125,7 +125,7 @@ export default function Header() {
           {/* BOTÃO DO CARRINHO (RESPONSIVO E DESTACADO) */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-3 py-2 text-xs font-bold text-slate-950 shadow-md shadow-emerald-500/20 transition-all hover:brightness-110 active:scale-95"
+            className="relative flex items-center gap-2 rounded-full bg-cyan-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-neon-md transition-all hover:brightness-110 hover:scale-[1.03] active:scale-95"
             aria-label="Abrir carrinho"
           >
             <ShoppingBag size={16} />
