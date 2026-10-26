@@ -7,17 +7,26 @@
 :root {
   /* Paleta oficial TAILÂNDIA Bebidas & Tabacaria */
   --primary-color: #00E5FF;
+  --primary-rgb: 0, 229, 255;
   --bg-color: #050B14;
   --panel-color: rgba(10, 25, 47, 0.72);
   --panel-solid: #0A192F;
   --text-primary: #FFFFFF;
   --text-secondary: #A0AAB2;
 
+  --status-success: #00FF88;
+  --status-warning: #FFD600;
+  --status-danger: #FF3366;
+
   --radius-card: 16px;
   --radius-pill: 9999px;
+  --padding-card: 1.25rem;
+  --padding-btn-y: 0.625rem;
+  --padding-btn-x: 1.5rem;
 
   --glow-sm: 0 0 10px rgba(0, 229, 255, 0.35);
   --glow-md: 0 0 20px rgba(0, 229, 255, 0.55);
+  --glow-lg: 0 0 32px rgba(0, 229, 255, 0.75);
   --border-subtle: 1px solid rgba(0, 229, 255, 0.18);
   --border-neon: 1px solid rgba(0, 229, 255, 0.65);
 
@@ -38,6 +47,102 @@ body {
 
 h1, h2, h3, h4 {
   font-family: 'Montserrat', 'Poppins', system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   CLASSES UTILITÁRIAS DO DESIGN SYSTEM (TAILÂNDIA ECOSYSTEM)
+   ========================================================================== */
+.tai-card {
+  background: var(--panel-color);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: var(--radius-card);
+  border: var(--border-subtle);
+  padding: var(--padding-card);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tai-card-interactive {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tai-card-interactive:hover,
+.tai-card-active {
+  border-color: rgba(0, 229, 255, 0.75);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35), inset 0 0 15px rgba(0, 229, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Botão Pílula Primário (Ciano Brilhante) */
+.tai-btn-primary {
+  background-color: var(--primary-color);
+  color: #050B14;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: var(--padding-btn-y) var(--padding-btn-x);
+  box-shadow: var(--glow-md);
+  border: 1px solid var(--primary-color);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.tai-btn-primary:hover {
+  box-shadow: var(--glow-lg);
+  transform: scale(1.02);
+  filter: brightness(1.08);
+}
+
+.tai-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Botão Pílula Outline Neon */
+.tai-btn-outline {
+  background: rgba(10, 25, 47, 0.6);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: var(--padding-btn-y) var(--padding-btn-x);
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tai-btn-outline:hover {
+  background: rgba(0, 229, 255, 0.14);
+  border-color: var(--primary-color);
+  box-shadow: var(--glow-sm);
+  color: var(--primary-color);
+}
+
+/* Inputs Escuros com Foco Brilhante */
+.tai-input {
+  background: rgba(10, 25, 47, 0.85);
+  border: 1px solid rgba(160, 170, 178, 0.22);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+  padding: 0.625rem 1.25rem;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.tai-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.75;
+}
+
+.tai-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: var(--glow-sm);
+  background: #0A192F;
 }
 
 /* Efeitos neon reutilizáveis */

@@ -1,10 +1,39 @@
 import React from 'react';
 
+interface BrandMarkProps {
+  className?: string;
+  variant?: 'svg' | 'image' | 'color';
+}
+
 /**
- * Logo TAILÂNDIA em linha neon: dois elefantes tailandeses + narguilé central.
- * Usa a cor `currentColor` / var(--primary-color) para acompanhar o tema.
+ * Logo TAILÂNDIA — Elefantes Tailandeses + Narguilé.
+ * Suporta o SVG neon customizado ou a imagem oficial em PNG de alta resolução.
  */
-export default function BrandMark({ className = 'h-10 w-14' }: { className?: string }) {
+export default function BrandMark({ className = 'h-10 w-14', variant = 'image' }: BrandMarkProps) {
+  if (variant === 'image') {
+    return (
+      <img
+        src="/imagens/tai logo canvas.png"
+        alt="Tailândia Bebidas & Tabacaria"
+        className={`object-contain drop-shadow-[0_0_10px_rgba(0,229,255,0.45)] ${className}`}
+        onError={(e) => {
+          // Fallback para SVG se a imagem falhar
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+    );
+  }
+
+  if (variant === 'color') {
+    return (
+      <img
+        src="/imagens/tai logo canvas color.png"
+        alt="Tailândia Bebidas & Tabacaria"
+        className={`rounded-xl object-contain shadow-[0_0_15px_rgba(0,229,255,0.35)] ${className}`}
+      />
+    );
+  }
+
   return (
     <svg
       className={`neon-svg ${className}`}

@@ -138,26 +138,26 @@ export default function ProductGrid() {
   return (
     <section className="py-8" id="catalogo">
       {/* Barra de Filtros e Ordenação Superior */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
+      <div className="tai-card mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-[#00E5FF]/20 bg-[#0A192F]/80">
         
         {/* Título & Contador */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.2)]">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base md:text-lg font-black text-white flex items-center gap-2">
+            <h2 className="text-base md:text-lg font-black text-white flex items-center gap-2 font-display">
               {activeCategory === 'TODAS' ? 'Todos os Produtos' : activeCategory}
-              <span className="text-xs font-semibold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">
+              <span className="text-xs font-semibold text-[#00E5FF] bg-[#050B14] px-2.5 py-0.5 rounded-full border border-[#00E5FF]/30">
                 {filteredProducts.length} itens
               </span>
             </h2>
             {searchQuery && (
-              <p className="text-xs text-amber-400">
+              <p className="text-xs text-[#00E5FF]">
                 Buscando por: "{searchQuery}"
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="ml-2 text-slate-400 hover:text-white underline"
+                  className="ml-2 text-[#A0AAB2] hover:text-white underline cursor-pointer"
                 >
                   limpar
                 </button>
@@ -169,33 +169,33 @@ export default function ProductGrid() {
         {/* Controles de Filtros e Ordenação */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Ordenar por */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-300">
-            <ArrowUpDown className="h-3.5 w-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#050B14] px-3.5 py-2 text-xs text-white">
+            <ArrowUpDown className="h-3.5 w-3.5 text-[#00E5FF]" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               className="bg-transparent text-white focus:outline-none cursor-pointer"
             >
-              <option value="destaque" className="bg-slate-900 text-white">Mais Populares</option>
-              <option value="menor-preco" className="bg-slate-900 text-white">Menor Preço</option>
-              <option value="maior-preco" className="bg-slate-900 text-white">Maior Preço</option>
-              <option value="alfabetica" className="bg-slate-900 text-white">A - Z</option>
+              <option value="destaque" className="bg-[#0A192F] text-white">Mais Populares</option>
+              <option value="menor-preco" className="bg-[#0A192F] text-white">Menor Preço</option>
+              <option value="maior-preco" className="bg-[#0A192F] text-white">Maior Preço</option>
+              <option value="alfabetica" className="bg-[#0A192F] text-white">A - Z</option>
             </select>
           </div>
 
           {/* Faixa de Preço */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-300">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#050B14] px-3.5 py-2 text-xs text-white">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-[#00E5FF]" />
             <select
               value={selectedPriceRange}
               onChange={(e) => setSelectedPriceRange(e.target.value)}
               className="bg-transparent text-white focus:outline-none cursor-pointer"
             >
-              <option value="TODOS" className="bg-slate-900 text-white">Todas as faixas</option>
-              <option value="ate25" className="bg-slate-900 text-white">Até R$ 25</option>
-              <option value="25a60" className="bg-slate-900 text-white">R$ 25 a R$ 60</option>
-              <option value="60a120" className="bg-slate-900 text-white">R$ 60 a R$ 120</option>
-              <option value="120mais" className="bg-slate-900 text-white">Acima de R$ 120</option>
+              <option value="TODOS" className="bg-[#0A192F] text-white">Todas as faixas</option>
+              <option value="ate25" className="bg-[#0A192F] text-white">Até R$ 25</option>
+              <option value="25a60" className="bg-[#0A192F] text-white">R$ 25 a R$ 60</option>
+              <option value="60a120" className="bg-[#0A192F] text-white">R$ 60 a R$ 120</option>
+              <option value="120mais" className="bg-[#0A192F] text-white">Acima de R$ 120</option>
             </select>
           </div>
         </div>

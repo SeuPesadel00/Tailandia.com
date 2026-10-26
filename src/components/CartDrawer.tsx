@@ -286,13 +286,13 @@ export default function CartDrawer() {
               {/* Campo de Cupom */}
               <div>
                 {couponCode ? (
-                  <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-xs text-emerald-400">
+                  <div className="flex items-center justify-between rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 px-3 py-2 text-xs text-[#00E5FF]">
                     <span className="flex items-center gap-1.5 font-bold">
                       <Tag className="h-3.5 w-3.5" /> Cupom {couponCode} aplicado (-{formatBRL(discount)})
                     </span>
                     <button
                       onClick={removeCoupon}
-                      className="text-emerald-300 hover:text-rose-400 font-bold"
+                      className="text-[#FF3366] hover:underline font-bold cursor-pointer"
                     >
                       Remover
                     </button>
@@ -304,18 +304,18 @@ export default function CartDrawer() {
                       placeholder="Cupom (ex: TAI10)"
                       value={inputCoupon}
                       onChange={(e) => setInputCoupon(e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+                      className="flex-1 rounded-full border border-white/10 bg-[#050B14] px-4 py-2 text-xs text-white placeholder-[#A0AAB2] focus:border-[#00E5FF] focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500 hover:text-slate-950 transition"
+                      className="tai-btn-outline !py-2 !px-4 text-xs font-bold"
                     >
                       Aplicar
                     </button>
                   </form>
                 )}
                 {couponError && (
-                  <p className="mt-1 text-[11px] text-rose-400 flex items-center gap-1">
+                  <p className="mt-1 text-[11px] text-[#FF3366] flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" /> {couponError}
                   </p>
                 )}
@@ -328,25 +328,25 @@ export default function CartDrawer() {
                   placeholder="Seu Nome (opcional)"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-full border border-white/10 bg-[#050B14] px-4 py-2 text-xs text-white placeholder-[#A0AAB2] focus:border-[#00E5FF] focus:outline-none"
                 />
               </div>
 
               {/* Resumo Financeiro */}
-              <div className="space-y-1.5 text-xs text-slate-300 border-t border-slate-800/80 pt-3">
+              <div className="space-y-1.5 text-xs text-[#A0AAB2] border-t border-white/10 pt-3">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>{formatBRL(subtotal)}</span>
+                  <span className="text-white font-medium">{formatBRL(subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-emerald-400 font-medium">
+                  <div className="flex justify-between text-[#00FF88] font-medium">
                     <span>Desconto</span>
                     <span>-{formatBRL(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Taxa de Entrega</span>
-                  <span>
+                  <span className="text-white font-medium">
                     {deliveryType === 'RETIRADA'
                       ? 'Grátis (Retirada)'
                       : deliveryFee === 0
@@ -354,18 +354,18 @@ export default function CartDrawer() {
                       : formatBRL(deliveryFee)}
                   </span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-slate-800 text-sm font-black text-white">
+                <div className="flex justify-between pt-2 border-t border-white/10 text-sm font-black text-white">
                   <span>Total</span>
-                  <span className="text-base text-amber-400">{formatBRL(total)}</span>
+                  <span className="text-lg font-display text-[#00E5FF] neon-text">{formatBRL(total)}</span>
                 </div>
               </div>
 
               {/* Botões de Ação */}
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2.5 pt-1">
                 {/* Botão Pedir via WhatsApp */}
                 <button
                   onClick={handleWhatsAppCheckout}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 py-3 px-4 font-bold text-slate-950 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition"
+                  className="tai-btn-primary w-full !py-3.5 text-sm uppercase tracking-wider font-extrabold"
                 >
                   <MessageSquare className="h-4 w-4" />
                   Pedir Rápido pelo WhatsApp
@@ -374,15 +374,15 @@ export default function CartDrawer() {
                 {/* Botão Finalizar Pedido Web */}
                 <button
                   onClick={handleWebCheckout}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-800 hover:bg-slate-700 py-2.5 px-4 text-xs font-semibold text-white border border-slate-700 transition"
+                  className="tai-btn-outline w-full !py-2.5 text-xs font-bold"
                 >
-                  <span>Finalizar no Site (Pix)</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <span>Finalizar no Site (Pix Automático)</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-[#00E5FF]" />
                 </button>
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 pt-1">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#A0AAB2] pt-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#00FF88]" />
                 Compra 100% Segura • Entrega Rápida 24 Horas
               </div>
 

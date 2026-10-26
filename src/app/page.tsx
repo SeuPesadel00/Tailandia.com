@@ -12,7 +12,7 @@ import Footer from '../components/Footer';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#090d16] flex flex-col text-slate-100">
+    <div className="min-h-screen bg-[#050B14] flex flex-col text-white selection:bg-[#00E5FF] selection:text-[#050B14]">
       {/* Header Sticky */}
       <Header />
 
@@ -20,14 +20,14 @@ export default function HomePage() {
       <CategoryPills />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* Hero & Banners Promocionais */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Hero & Destaque dos Elefantes Tailandeses */}
         <HeroSection />
 
-        {/* Destaques Comerciais & Mais Vendidos */}
+        {/* Destaques da Semana */}
         <FeaturedSection />
 
-        {/* Catálogo Completo de Produtos Sanitizados com Filtros */}
+        {/* Catálogo Completo de Produtos com Filtros */}
         <ProductGrid />
       </main>
 

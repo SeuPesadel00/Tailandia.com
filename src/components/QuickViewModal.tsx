@@ -155,12 +155,12 @@ export default function QuickViewModal() {
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className={`w-full flex items-center justify-center gap-2 rounded-xl py-3.5 px-4 font-bold text-slate-950 shadow-lg transition-all ${
+                className={`w-full flex items-center justify-center gap-2 rounded-full py-3.5 px-4 font-extrabold text-[#050B14] shadow-lg transition-all cursor-pointer ${
                   isOutOfStock
                     ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                     : added
-                    ? 'bg-emerald-400 text-slate-950 scale-[0.98]'
-                    : 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 hover:shadow-amber-500/20 active:scale-[0.98]'
+                    ? 'bg-[#00FF88] text-[#050B14] scale-[0.98]'
+                    : 'bg-[#00E5FF] hover:brightness-110 shadow-[0_0_20px_rgba(0,229,255,0.6)] active:scale-[0.98]'
                 }`}
               >
                 {added ? (
